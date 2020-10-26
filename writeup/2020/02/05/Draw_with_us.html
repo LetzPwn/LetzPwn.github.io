@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Draw with us | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Draw with us" />
+<meta name="author" content="Alain K." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description Come draw with us! http://167.172.165.153:60000/, Author: stackola. Hint! Changing your color is the first step towards happiness. Source code." />
+<meta property="og:description" content="Description Come draw with us! http://167.172.165.153:60000/, Author: stackola. Hint! Changing your color is the first step towards happiness. Source code." />
+<link rel="canonical" href="/writeup/2020/02/05/Draw_with_us.html" />
+<meta property="og:url" content="/writeup/2020/02/05/Draw_with_us.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/website.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-02-05T15:10:05+00:00" />
+<script type="application/ld+json">
+{"description":"Description Come draw with us! http://167.172.165.153:60000/, Author: stackola. Hint! Changing your color is the first step towards happiness. Source code.","headline":"Draw with us","dateModified":"2020-02-05T15:10:05+00:00","datePublished":"2020-02-05T15:10:05+00:00","image":"/website.png","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2020/02/05/Draw_with_us.html"},"url":"/writeup/2020/02/05/Draw_with_us.html","author":{"@type":"Person","name":"Alain K."},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">HackTM CTF 2020</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">Draw with us Writeup</li>
+        </ul>
+        <h1>Draw with us Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Alain K.</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Feb 5, 2020</div>
+        <ul class="tags">
+          <li>Solves: 85/1528 teams</li>
+          <li>Source: <a href="http://167.172.165.153:60000/" target="_blank" rel="noopener noreferrer">http://167.172.165.153:60000/</a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+<blockquote>
+  <p>Come draw with us!<br />
+<a href="http://167.172.165.153:60000/">http://167.172.165.153:60000/</a>,<br />
+Author: stackola.<br />
+Hint! Changing your color is the first step towards happiness.<br />
+<a href="stripped.js">Source code</a>.</p>
+</blockquote>
+
+<p><img src="website.png" alt="Image of Website" /></p>
+
+<h2 id="tldr">TL;DR</h2>
+<p>The challenge consisted of of 3 bypasses to get a signed JWT token with admin rights.</p>
+<ol>
+  <li>Bypass <code class="highlighter-rouge">isAdmin() </code> check with Unicode case folding. <code class="highlighter-rouge">username.toLowerCase() == adminUsername.toLowerCase()</code></li>
+  <li>Get blacklisted server info by bypassing the blacklist check. 
+<code class="highlighter-rouge">let blacklist = ["p", "n", "port"]; if(!blacklist.includes(userRequest)) return rights[userRequest];</code> can be bypassed by setting userRequest to an array: <code class="highlighter-rouge">["n"]</code>, which will result in <code class="highlighter-rouge">rights[["n"]]</code>, which is the same as <code class="highlighter-rouge">rights["n"]</code> for javascript.</li>
+  <li>Use the server info to get a new signed JWT token with the same id as admin: 0.</li>
+  <li>Request flag with signed admin JWT token</li>
+</ol>
+
+<h2 id="complete-writeup">Complete Writeup</h2>
+<p>The website consisted of a pixel board where users could draw on after registering with a username. The color was randomly assigned to the user: either black or white. Looking at the board however, one could see that some users managed to draw with other colors already. Given the hint in the desciption, this seemed to be the first problem to solve. As the source code got provided to us, let’s take a closer look into the part where the color can be changed:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">"</span><span class="s2">/updateUser</span><span class="dl">"</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">uid</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">users</span><span class="p">[</span><span class="nx">uid</span><span class="p">];</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">user</span> <span class="o">||</span> <span class="o">!</span><span class="nx">isAdmin</span><span class="p">(</span><span class="nx">user</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">err</span><span class="p">(</span><span class="dl">"</span><span class="s2">You're not an admin!</span><span class="dl">"</span><span class="p">));</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nx">users</span><span class="p">[</span><span class="nx">uid</span><span class="p">].</span><span class="nx">color</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">color</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<p>An intersting thing to notice is that requests are treated as JSON objects. An example POST request body to change the color could look like the follwing:
+<code class="highlighter-rouge">{color: 0xDEDBEE}</code>.
+However, there is a protection mechanism set in place that only allows admins to change the color. So let’s take a closer look into what the <code class="highlighter-rouge">isAdmin() </code> function does:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">isAdmin</span><span class="p">(</span><span class="nx">u</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">u</span><span class="p">.</span><span class="nx">username</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="nx">config</span><span class="p">.</span><span class="nx">adminUsername</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>As we know the name of the admin (“hacktm”), the first try was to register as a user with the same name as the admin. However this fails due to the following validation function:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">isValidUser</span><span class="p">(</span><span class="nx">u</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span>
+    <span class="nx">u</span><span class="p">.</span><span class="nx">username</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="o">&amp;&amp;</span>
+    <span class="nx">u</span><span class="p">.</span><span class="nx">username</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span> <span class="o">!==</span> <span class="nx">config</span><span class="p">.</span><span class="nx">adminUsername</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span>
+  <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>There are two things that my eyes caught on:</p>
+<ol>
+  <li><code class="highlighter-rouge">isValidUser()</code> uses a strict equality check (<code class="highlighter-rouge">!==</code>), whereas <code class="highlighter-rouge">isAdmin()</code> uses the non-strict equality check (<code class="highlighter-rouge">==</code>)</li>
+  <li><code class="highlighter-rouge">isValidUser()</code> uses <code class="highlighter-rouge">toUpperCase()</code> for comparing, <code class="highlighter-rouge">isAdmin()</code> uses <code class="highlighter-rouge">toLowerCase()</code></li>
+</ol>
+
+<p>The 2nd point reminded me of UTF case folding attacks. So I checked some special case folding scenarios on the <a href="https://unicode.org/faq/casemap_charprop.html">UTF-8 website</a> and tried them to force the <code class="highlighter-rouge">toLowerCase</code> to result into the “hacktm” string, whereas the <code class="highlighter-rouge">toUpperCase</code> NOT transforming to “HACKTM”. I tried some greek and turkish characters and some other special characters. Even though the results “looked” correct, they were not the thing I needed in Upper- or lower case (Example good candidate: HaϹkTM.toUpperCase() = “HAϹKTM” which is not the same as “HACKTM”, as the “Ϲ” is not a standard ascii “C” but a greek UTF-8 character. HaϹkTM.toLowerCase() = “haϲktm”, however the isAdmin() check would not pass as the transformed little “ϲ” is also a special greek character).</p>
+
+<p>After a lot of unsuccesful tries, I gave up with the unicode bypass and spent some time to abuse the non-strict eqauality check. 
+As we can pass any valid JSON, I tried the following as username:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="nl">username</span><span class="p">:</span> <span class="p">[</span><span class="dl">"</span><span class="s2">hack</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">t</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">m</span><span class="dl">"</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>this failed because toLowerCase() and toUpperCase() are not defined on arrays. But otherwise it would have worked as <code class="highlighter-rouge">username.length &gt;= 3</code> and because of the non-strict equality check <code class="highlighter-rouge">["hack","t","m"] == "hacktm"</code> would have resulted in true. Another idea was to use an object as username:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="nl">username</span><span class="p">:</span> <span class="p">{</span><span class="dl">"</span><span class="s2">toUpperCase</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">hacktm</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">toLowerCase</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">hacktm</span><span class="dl">"</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>But this clearly fails because toUpperCase/toLowerCase are not callable functions.</p>
+
+<p>I gave up with both approaches and concluded that if there is a possible bypass, it is more probable to be an UTF case folding bypass.</p>
+
+<p>So I looked at the rest of the code and tried to make sense of it. The application uses JWT for authentication. It stores the userId in it, and we know that the <code class="highlighter-rouge">userId = 0</code> is the administrator account. Seeing JWT tokens in CTF challenges, it is always a good idea to try to bypass the signing by setting the signing algorithm to none. However this did not work and also looking at the source code, one can see it uses a state of the art library with no current possible vulnerabilites.</p>
+
+<p>Next step was to look into a strange <code class="highlighter-rouge">init</code> function:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">"</span><span class="s2">/init</span><span class="dl">"</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+
+  <span class="kd">let</span> <span class="p">{</span> <span class="nx">p</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">0</span><span class="dl">"</span><span class="p">,</span> <span class="nx">q</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">0</span><span class="dl">"</span><span class="p">,</span> <span class="nx">clearPIN</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span>
+
+  <span class="kd">let</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">md5</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">n</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+
+  <span class="kd">let</span> <span class="nx">pwHash</span> <span class="o">=</span> <span class="nx">md5</span><span class="p">(</span>
+    <span class="nx">bigInt</span><span class="p">(</span><span class="nb">String</span><span class="p">(</span><span class="nx">p</span><span class="p">))</span>
+      <span class="p">.</span><span class="nx">multiply</span><span class="p">(</span><span class="nb">String</span><span class="p">(</span><span class="nx">q</span><span class="p">))</span>
+      <span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+  <span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">pwHash</span> <span class="o">==</span> <span class="nx">target</span> <span class="o">&amp;&amp;</span> <span class="nx">clearPIN</span> <span class="o">===</span> <span class="nx">_clearPIN</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Clear the board</span>
+    <span class="nx">board</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">height</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">width</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">backgroundColor</span><span class="p">));</span>
+    <span class="nx">boardString</span> <span class="o">=</span> <span class="nx">boardToStrings</span><span class="p">();</span>
+
+    <span class="nx">io</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="dl">"</span><span class="s2">board</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span> <span class="na">board</span><span class="p">:</span> <span class="nx">boardString</span> <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="c1">//Sign the admin ID</span>
+  <span class="kd">let</span> <span class="nx">adminId</span> <span class="o">=</span> <span class="nx">pwHash</span>
+    <span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="dl">""</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">c</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">c</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">^</span> <span class="nx">target</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="nx">i</span><span class="p">))</span>
+    <span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">);</span>
+
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">adminId</span><span class="p">);</span>
+
+  <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">ok</span><span class="p">({</span> <span class="na">token</span><span class="p">:</span> <span class="nx">sign</span><span class="p">({</span> <span class="na">id</span><span class="p">:</span> <span class="nx">adminId</span> <span class="p">})</span> <span class="p">}));</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Here, the last line is very interesting. It signs a new valid JWT token with an id that gets calculated by user input. This is exactly what we need to get a valid JWT for admin access! Also the signing is not protected by any checks(there is an if condition with <code class="highlighter-rouge">pwHash == target &amp;&amp; clearPIN === _clearPIN</code>, however the signing happens afterwards outside the if condition). 
+So now the big question is: what input do we need to give to get an adminId of 0? The adminId is calculated here:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kd">let</span> <span class="nx">adminId</span> <span class="o">=</span> <span class="nx">pwHash</span>
+    <span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="dl">""</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">c</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">c</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">^</span> <span class="nx">target</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="nx">i</span><span class="p">))</span>
+    <span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">);</span>
+</code></pre></div></div>
+<p>We can get 0 by having <code class="highlighter-rouge">pwHash</code> being the same as <code class="highlighter-rouge">target</code>. This is because the xor wil cancel eachother out and the sum will be 0. Howver <code class="highlighter-rouge">target</code> is the md5 of an unknown value stored in <code class="highlighter-rouge">config.n</code>. <code class="highlighter-rouge">pwHash</code> on the other hand is the md5 of a multiple of 2 user-provided inputs. This sounds like an RSA problem and impossible to crack if <code class="highlighter-rouge">conifg.n</code> is well chosen… So the only way to get an adminId of 0 is by leaking <code class="highlighter-rouge">config.n</code> somehow…</p>
+
+<p>Looking at the <code class="highlighter-rouge">updateUser</code> function again, there is some code with which one can access the config. However, there are two problems:</p>
+<ol>
+  <li>This code lies in the same area as the setColor code. Meaning we still need to bypass <code class="highlighter-rouge">isAdmin</code></li>
+  <li><code class="highlighter-rouge">n</code> and <code class="highlighter-rouge">p</code> are blacklisted</li>
+</ol>
+
+<p>1st point I gave up before, but if I managed to bypass the <code class="highlighter-rouge">n</code> and <code class="highlighter-rouge">p</code> blacklist, I was very confident that I was on the right track and I would tackle the UTF-8 case-folding again. So, let’s analyze the <code class="highlighter-rouge">n</code> and <code class="highlighter-rouge">p</code> blacklist code. <code class="highlighter-rouge">n</code> and <code class="highlighter-rouge">p</code> are blacklisted by a function similar to this one:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="dl">"</span><span class="s2">p</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">n</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">port</span><span class="dl">"</span><span class="p">];</span> <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">blacklist</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">userRequest</span><span class="p">))</span> <span class="k">return</span> <span class="nx">rights</span><span class="p">[</span><span class="nx">userRequest</span><span class="p">];</span>
+</code></pre></div></div>
+<p>As I already knew that the user input can be any JSON object, I opened a javascript console and played around to find a non-string datatype, that can be passed as lookup index to an object and still work. I found that passing an array with a single value worked. So <code class="highlighter-rouge">rights[["n"]]</code> returned the same result as <code class="highlighter-rouge">rights["n"]</code>! Furthermore, <code class="highlighter-rouge">blacklist.include(["n"])</code> returns false, which is exactly what we want.</p>
+
+<p>Now in theory, I had figured everything out. But I couldn’t test it on the server as I didn’t find a working UTF-8 case folding character. So what to do if you can’t find a valid character in the UTF-8 spec but supsect there being one? Exactly: Open a javascript console and try out every single UTF-8 character. Here is the function I wrote:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mi">100000</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span> <span class="c1">//Increase if needed</span>
+    <span class="nx">out</span> <span class="o">=</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+		<span class="k">if</span><span class="p">(</span><span class="nx">out</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="dl">"</span><span class="s2">k</span><span class="dl">"</span> <span class="o">&amp;&amp;</span> <span class="nx">out</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span> <span class="o">!=</span> <span class="dl">"</span><span class="s2">K</span><span class="dl">"</span><span class="p">)</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">out</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>And I finally got some UTF-8 characters that were “k” in lowercase but not “K” in uppercase. I used \u212A and tada, I bypassed the <code class="highlighter-rouge">isAdmin</code> check. Furthermore, I bypassed all the other steps that I planned in my head as described above and got a signed JWT token with id = 0! This was all that was needed to finally make a request to /flag and get the flag!</p>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>Offline Bruteforcing stuff is sometimes more efficient then reading through specs. Had I tried finding valid UTF-8 characters with a small script right away, I would have saved a lot of time. The UTF-8 spec is huge and finding the right information is not always easy.</p>
+
+<p>I’m very pleased that I solved the other 2 bypasses mentally before I could manage to find the UTF-8 bypass. After finding the UTF-8 bypass, I was excited that the rest of the challenge was working as I already planned in my head.</p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">web</a>
+                
+                  <a href="#">node.js</a>
+                
+                  <a href="#">javascript</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Feb 5, 2020</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Feb 5, 2020</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>loopback | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="loopback" />
+<meta name="author" content="punshLineLama" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="loopback" />
+<meta property="og:description" content="loopback" />
+<link rel="canonical" href="/writeup/2020/03/04/loopback.html" />
+<meta property="og:url" content="/writeup/2020/03/04/loopback.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/wireshark.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-03-04T15:10:05+00:00" />
+<script type="application/ld+json">
+{"description":"loopback","headline":"loopback","dateModified":"2020-03-04T15:10:05+00:00","datePublished":"2020-03-04T15:10:05+00:00","image":"/img/wireshark.png","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2020/03/04/loopback.html"},"url":"/writeup/2020/03/04/loopback.html","author":{"@type":"Person","name":"punshLineLama"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">LCSC CTF 2020</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">loopback Writeup</li>
+        </ul>
+        <h1>loopback Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">punshLineLama</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Mar 4, 2020</div>
+        <ul class="tags">
+          <li>Solves:  teams</li>
+          <li>Source: <a href="" target="_blank" rel="noopener noreferrer"></a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h1 id="loopback">loopback</h1>
+
+<h2 id="tldr">TL;DR</h2>
+<p>Extract every 70th byte from the data padding of every second packet and put it into a file.
+The file is a picture and contains the flag.</p>
+
+<h2 id="description">Description</h2>
+<p>The challenge is network forensic challenge. Thus, we were provided with a pcap file, namely <em>loopback.pcap</em></p>
+
+<p>First thing to do it to take a look at it in wireshark.
+<img src="img/wireshark.png" alt="loopback.pcap in wireshark" /></p>
+
+<p>It seems like some data is embedded in the data field.
+Trying to extract data with <em>foremost</em> or <em>binwalk</em> did not yield any results.
+So lets take a closer look at single packets and their content.</p>
+
+<p>It is noticeable that all the packets have the exact same size.
+The data field always contains 48 bytes.
+From Wikipedia we know, that the first 8 bytes are ICMP specific, the rest seems to be some kind of payload of padding.
+Thus we can ignore the first 8 bytes and take a look at the padding bytes.</p>
+
+<p>As the ICMP request and reply contain the same padding bytes, we have information gain of one byte per 2 packets.
+As the file contains 21190 packets, we have 10595 bytes of information.</p>
+
+<p>As there are also non-ascii bytes, it can be deduced that the resulting file is not a text file.</p>
+
+<h2 id="extracting-the-bytes">Extracting the bytes</h2>
+
+<p>The padding bytes of the first few packets result in: <code class="highlighter-rouge">\x89 \x59 \x4e \x47 \x0d</code>.
+Which looks exactly like the file signature of a .png file.</p>
+
+<p>To extract one byte of padding of every second packet, I wrote a little python script which does exactly that:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">dpkt</span>
+
+<span class="c1">#open the pcap file
+</span><span class="n">pcap_content</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"./loopback.pcap"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span>
+<span class="c1">#open the ouput file
+</span><span class="n">out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"flag.png"</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">)</span>
+<span class="c1">#read in the file as series of packets
+</span><span class="n">pcap</span> <span class="o">=</span> <span class="n">dpkt</span><span class="o">.</span><span class="n">pcap</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">pcap_content</span><span class="p">)</span>
+<span class="c1">#set count variable to only get every second packet
+</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">cap</span> <span class="ow">in</span> <span class="n">pcap</span><span class="p">:</span>
+	<span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="c1">#write out the relevant byte of every second ICMP packet.
+</span>    <span class="c1"># I chose to extract the 70th byte, but any other in the correct range is also fine
+</span>		<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cap</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">70</span><span class="p">])</span>
+	<span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+
+</code></pre></div></div>
+
+<p>After running the script, we can open the flag.png to view the flag:</p>
+
+<p><img src="img/flag.png" alt="flag" /></p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">network</a>
+                
+                  <a href="#">forensic</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Mar 4, 2020</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Mar 4, 2020</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>
