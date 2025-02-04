@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Healthcheck 1 | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Healthcheck 1" />
+<meta name="author" content="Jaak" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Health Check 1" />
+<meta property="og:description" content="Health Check 1" />
+<link rel="canonical" href="/writeup/2022/09/02/healthcheck.html" />
+<meta property="og:url" content="/writeup/2022/09/02/healthcheck.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/balsnctf_challenges.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-09-02T23:10:05+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/img/balsnctf_challenges.png" />
+<meta property="twitter:title" content="Healthcheck 1" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jaak"},"dateModified":"2022-09-02T23:10:05+00:00","datePublished":"2022-09-02T23:10:05+00:00","description":"Health Check 1","headline":"Healthcheck 1","image":"/img/balsnctf_challenges.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2022/09/02/healthcheck.html"},"url":"/writeup/2022/09/02/healthcheck.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">Balsn CTF 2022</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">Healthcheck 1 Writeup</li>
+        </ul>
+        <h1>Healthcheck 1 Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Jaak</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Sep 2, 2022</div>
+        <ul class="tags">
+          <li>Solves:  teams</li>
+          <li>Source: <a href="" target="_blank" rel="noopener noreferrer"></a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h1 id="health-check-1">Health Check 1</h1>
+
+<h2 id="description">Description</h2>
+
+<p>Want to know whether the challenge is down or it’s just your network down? Want to know who to send a message when you want to contact an admin of some challenges? Take a look at our “fastest” Health Check API in the world!</p>
+
+<p>http://fastest-healthcheck.balsnctf.com</p>
+
+<p>Warning: Do not violate our CTF rules.</p>
+
+<p>Author: chiffoncake</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>Under the provided link, we just see a hello world message in json.
+Gobuster finds a <code class="language-plaintext highlighter-rouge">/docs</code> endpoint. Navigating to it reveals documentation about more endpoints:
+<img src="https://hedgedoc.pwned.lu/uploads/5c8e9fe6-3229-4afc-ae47-dd7797f38bb2.png" alt="" /></p>
+
+<p><img src="https://hedgedoc.pwned.lu/uploads/3f4ef5d1-1414-4415-83f0-3f5312e688f1.png" alt="" /></p>
+
+<p>So it seems we found a way to upload a zipfile containing a <code class="language-plaintext highlighter-rouge">run</code> executable. There is a process that executes it in a 30 second interval. The executable is expected to create a <code class="language-plaintext highlighter-rouge">status.json</code> file, where <code class="language-plaintext highlighter-rouge">run</code> is expected to store some results in. When uploading zip file, we receive the name it is stored under. Using the second endpoint, we can request the respective json of the commands we run from the uploaded zip.</p>
+
+<p>So seems like we got command execution and a way of checking what our commands do. Let’s try it.</p>
+
+<p>I am creating a shell script containing the command i want to run:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+
+<span class="nb">touch</span> ./status.json
+
+<span class="nb">pwd</span> <span class="o">&gt;</span> ./status.json
+
+</code></pre></div></div>
+
+<p><img src="https://hedgedoc.pwned.lu/uploads/7835c431-d4e3-4eac-9e73-11ca03ff0e82.png" alt="" /></p>
+
+<ul>
+  <li>Listing files in interesting directory with <code class="language-plaintext highlighter-rouge">ls ../..</code> (note that flag1.py is interesting for us; flag2 is for a different challenge):</li>
+</ul>
+
+<p><img src="https://hedgedoc.pwned.lu/uploads/01a4938c-29ea-4067-aa0c-b1bd06c8bdb5.png" alt="" /></p>
+
+<ul>
+  <li>Taking a look at permissions with <code class="language-plaintext highlighter-rouge">ls -la ../..</code>. Looks like we do not have read permission to the <code class="language-plaintext highlighter-rouge">flag1.py</code> script.</li>
+</ul>
+
+<p><img src="https://hedgedoc.pwned.lu/uploads/ab14b439-b928-437e-9053-57267b1e687c.png" alt="" /></p>
+
+<ul>
+  <li>Since it is a script and theres a <code class="language-plaintext highlighter-rouge">__pycache__</code> folder, maybe we can read the compiled version of the script instead of the script itself. Let’s see what’s in there with <code class="language-plaintext highlighter-rouge">ls ../../__pycache__</code>:</li>
+</ul>
+
+<p><img src="https://hedgedoc.pwned.lu/uploads/bc847a58-2ef1-4fd4-a942-01f9f1e7a6c8.png" alt="" /></p>
+
+<p>Finally, at 3:30 in the morning, 27 minutes before the CTF ended, I managed to get the flag with <code class="language-plaintext highlighter-rouge">xxd ../../__pycache__/flag1.cpython-310.pyc</code>:</p>
+
+<p><img src="https://hedgedoc.pwned.lu/uploads/9f2eb19e-6fb1-4521-a811-e89cf7176e17.png" alt="" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">BALSN{y37_4n0th3r_pYC4ch3_cHa1leN93???}</code></p>
+
+<h2 id="reverse-shell-solution">Reverse shell solution</h2>
+
+<p>I did not get a reverse shell solution working during the CTF unfortunately. The way I did it was very laborious, crafting each zip file seperately, uploading it and waiting for execution. Also for commands that resulted in an error, I did not get a result in the status.json at all, making my solution very tedious.</p>
+
+<p>A reverse shell would have been the much better way. Some people on the BALSNCTF discord shared their solution. Here is a code snippet from a C script. When compiled as <code class="language-plaintext highlighter-rouge">run</code> and uploaded inside a zip, a reverse shell should be obtained. I tried it today where CTF is over, but I think they disabled the processes running the executables already.</p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">web</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Sep 2, 2022</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Sep 2, 2022</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

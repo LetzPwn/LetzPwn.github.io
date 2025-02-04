@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>RenderQuest | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="RenderQuest" />
+<meta name="author" content="Jaak Weyrich" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description You’ve found a website that lets you input remote templates for rendering. Your task is to exploit this system’s vulnerabilities to access and retrieve a hidden flag. Good luck! TL;DR Exploiting method confusion in Go’s html/template package for RCE. Complete Writeup" />
+<meta property="og:description" content="Description You’ve found a website that lets you input remote templates for rendering. Your task is to exploit this system’s vulnerabilities to access and retrieve a hidden flag. Good luck! TL;DR Exploiting method confusion in Go’s html/template package for RCE. Complete Writeup" />
+<link rel="canonical" href="/writeup/2023/11/10/RenderQuest.html" />
+<meta property="og:url" content="/writeup/2023/11/10/RenderQuest.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/thumbnail_image.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-11-10T23:10:05+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/img/thumbnail_image.png" />
+<meta property="twitter:title" content="RenderQuest" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jaak Weyrich"},"dateModified":"2023-11-10T23:10:05+00:00","datePublished":"2023-11-10T23:10:05+00:00","description":"Description You’ve found a website that lets you input remote templates for rendering. Your task is to exploit this system’s vulnerabilities to access and retrieve a hidden flag. Good luck! TL;DR Exploiting method confusion in Go’s html/template package for RCE. Complete Writeup","headline":"RenderQuest","image":"/img/thumbnail_image.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2023/11/10/RenderQuest.html"},"url":"/writeup/2023/11/10/RenderQuest.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">HackTheBox Web Challenges</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">RenderQuest Writeup</li>
+        </ul>
+        <h1>RenderQuest Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Jaak Weyrich</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Nov 10, 2023</div>
+        <ul class="tags">
+          <li>Solves: 714 teams</li>
+          <li>Source: <a href="https://app.hackthebox.com/challenges" target="_blank" rel="noopener noreferrer">https://app.hackthebox.com/challenges</a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+<blockquote>
+  <p>You’ve found a website that lets you input remote templates for rendering. Your task is to exploit this system’s vulnerabilities to access and retrieve a hidden flag. Good luck!</p>
+  <h2 id="tldr">TL;DR</h2>
+  <p>Exploiting method confusion in Go’s html/template package for RCE.</p>
+  <h2 id="complete-writeup">Complete Writeup</h2>
+</blockquote>
+
+<p>When visiting the website, we are greeted with the following screen, automatically requesting a <code class="language-plaintext highlighter-rouge">/render</code> endpoint with a GET parameter <code class="language-plaintext highlighter-rouge">page</code> set to <code class="language-plaintext highlighter-rouge">index.tpl</code>:</p>
+
+<p><img src="img/RenderQuest/thumbnail_image.png" alt="" />
+To get an idea of what we’re dealing with, let’s look at the files we got for download:
+<img src="img/Pasted image 20231111225407.png" alt="" />
+Seems like the most interesting one will be <code class="language-plaintext highlighter-rouge">main.go</code>. We also detect the <code class="language-plaintext highlighter-rouge">index.tpl</code> file that has put as GET request parameter to the <code class="language-plaintext highlighter-rouge">/render</code> endpoint.</p>
+
+<p>So what does this web application seem to do? Let’s take a look at the code in <code class="language-plaintext highlighter-rouge">main.go</code>:</p>
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+	<span class="s">"encoding/json"</span>
+	<span class="s">"fmt"</span>
+	<span class="s">"html/template"</span>
+	<span class="s">"io"</span>
+	<span class="s">"net/http"</span>
+	<span class="s">"os"</span>
+	<span class="s">"os/exec"</span>
+	<span class="s">"path/filepath"</span>
+	<span class="s">"strings"</span>
+<span class="p">)</span>
+
+<span class="k">const</span> <span class="n">WEB_PORT</span> <span class="o">=</span> <span class="s">"1337"</span>
+<span class="k">const</span> <span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="s">"./templates"</span>
+
+<span class="k">type</span> <span class="n">LocationInfo</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">IpVersion</span>     <span class="kt">int</span>     <span class="s">`json:"ipVersion"`</span>
+	<span class="n">IpAddress</span>     <span class="kt">string</span>  <span class="s">`json:"ipAddress"`</span>
+	<span class="n">Latitude</span>      <span class="kt">float64</span> <span class="s">`json:"latitude"`</span>
+	<span class="n">Longitude</span>     <span class="kt">float64</span> <span class="s">`json:"longitude"`</span>
+	<span class="n">CountryName</span>   <span class="kt">string</span>  <span class="s">`json:"countryName"`</span>
+	<span class="n">CountryCode</span>   <span class="kt">string</span>  <span class="s">`json:"countryCode"`</span>
+	<span class="n">TimeZone</span>      <span class="kt">string</span>  <span class="s">`json:"timeZone"`</span>
+	<span class="n">ZipCode</span>       <span class="kt">string</span>  <span class="s">`json:"zipCode"`</span>
+	<span class="n">CityName</span>      <span class="kt">string</span>  <span class="s">`json:"cityName"`</span>
+	<span class="n">RegionName</span>    <span class="kt">string</span>  <span class="s">`json:"regionName"`</span>
+	<span class="n">Continent</span>     <span class="kt">string</span>  <span class="s">`json:"continent"`</span>
+	<span class="n">ContinentCode</span> <span class="kt">string</span>  <span class="s">`json:"continentCode"`</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="n">MachineInfo</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">Hostname</span>      <span class="kt">string</span>
+	<span class="n">OS</span>            <span class="kt">string</span>
+	<span class="n">KernelVersion</span> <span class="kt">string</span>
+	<span class="n">Memory</span>        <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="k">type</span> <span class="n">RequestData</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">ClientIP</span>     <span class="kt">string</span>
+	<span class="n">ClientUA</span>     <span class="kt">string</span>
+	<span class="n">ServerInfo</span>   <span class="n">MachineInfo</span>
+	<span class="n">ClientIpInfo</span> <span class="n">LocationInfo</span> <span class="s">`json:"location"`</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="n">RequestData</span><span class="p">)</span> <span class="n">FetchServerInfo</span><span class="p">(</span><span class="n">command</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">exec</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="s">"sh"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="n">RequestData</span><span class="p">)</span> <span class="n">GetLocationInfo</span><span class="p">(</span><span class="n">endpointURL</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="n">LocationInfo</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">resp</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">http</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">endpointURL</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="n">resp</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">StatusCode</span> <span class="o">!=</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusOK</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"HTTP request failed with status code: %d"</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">StatusCode</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">body</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">io</span><span class="o">.</span><span class="n">ReadAll</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">Body</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">var</span> <span class="n">locationInfo</span> <span class="n">LocationInfo</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">json</span><span class="o">.</span><span class="n">Unmarshal</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">locationInfo</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="o">&amp;</span><span class="n">locationInfo</span><span class="p">,</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">isSubdirectory</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">path</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="n">rel</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">Rel</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">!</span><span class="n">strings</span><span class="o">.</span><span class="n">HasPrefix</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="s">".."</span><span class="o">+</span><span class="kt">string</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">Separator</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">readFile</span><span class="p">(</span><span class="n">filepath</span> <span class="kt">string</span><span class="p">,</span> <span class="n">basePath</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"filepath: "</span> <span class="o">+</span> <span class="n">filepath</span><span class="p">)</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"basePath: "</span> <span class="o">+</span> <span class="n">basePath</span><span class="p">)</span>
+	<span class="k">if</span> <span class="o">!</span><span class="n">isSubdirectory</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"Invalid filepath"</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">data</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">os</span><span class="o">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">readRemoteFile</span><span class="p">(</span><span class="n">url</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">response</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">http</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">defer</span> <span class="n">response</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">StatusCode</span> <span class="o">!=</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusOK</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"HTTP request failed with status code: %d"</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">StatusCode</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">content</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">io</span><span class="o">.</span><span class="n">ReadAll</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">Body</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">getIndex</span><span class="p">(</span><span class="n">w</span> <span class="n">http</span><span class="o">.</span><span class="n">ResponseWriter</span><span class="p">,</span> <span class="n">r</span> <span class="o">*</span><span class="n">http</span><span class="o">.</span><span class="n">Request</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">http</span><span class="o">.</span><span class="n">Redirect</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="s">"/render?page=index.tpl"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusMovedPermanently</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">getTpl</span><span class="p">(</span><span class="n">w</span> <span class="n">http</span><span class="o">.</span><span class="n">ResponseWriter</span><span class="p">,</span> <span class="n">r</span> <span class="o">*</span><span class="n">http</span><span class="o">.</span><span class="n">Request</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">var</span> <span class="n">page</span> <span class="kt">string</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">URL</span><span class="o">.</span><span class="n">Query</span><span class="p">()</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"page"</span><span class="p">)</span>
+	<span class="k">var</span> <span class="n">remote</span> <span class="kt">string</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">URL</span><span class="o">.</span><span class="n">Query</span><span class="p">()</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"use_remote"</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">page</span> <span class="o">==</span> <span class="s">""</span> <span class="p">{</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Missing required parameters"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusBadRequest</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">reqData</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="n">RequestData</span><span class="p">{}</span>
+
+	<span class="n">userIPCookie</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">r</span><span class="o">.</span><span class="n">Cookie</span><span class="p">(</span><span class="s">"user_ip"</span><span class="p">)</span>
+	<span class="n">clientIP</span> <span class="o">:=</span> <span class="s">""</span>
+
+	<span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">clientIP</span> <span class="o">=</span> <span class="n">userIPCookie</span><span class="o">.</span><span class="n">Value</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">clientIP</span> <span class="o">=</span> <span class="n">strings</span><span class="o">.</span><span class="n">Split</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">RemoteAddr</span><span class="p">,</span> <span class="s">":"</span><span class="p">)[</span><span class="m">0</span><span class="p">]</span>
+	<span class="p">}</span>
+
+	<span class="n">userAgent</span> <span class="o">:=</span> <span class="n">r</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"User-Agent"</span><span class="p">)</span>
+
+	<span class="n">locationInfo</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">GetLocationInfo</span><span class="p">(</span><span class="s">"https://freeipapi.com/api/json/"</span> <span class="o">+</span> <span class="n">clientIP</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Could not fetch IP location info"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ClientIP</span> <span class="o">=</span> <span class="n">clientIP</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ClientUA</span> <span class="o">=</span> <span class="n">userAgent</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ClientIpInfo</span> <span class="o">=</span> <span class="o">*</span><span class="n">locationInfo</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">Hostname</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"hostname"</span><span class="p">)</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">OS</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"cat /etc/os-release | grep PRETTY_NAME | cut -d '</span><span class="se">\"</span><span class="s">' -f 2"</span><span class="p">)</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">KernelVersion</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"uname -r"</span><span class="p">)</span>
+	<span class="n">reqData</span><span class="o">.</span><span class="n">ServerInfo</span><span class="o">.</span><span class="n">Memory</span> <span class="o">=</span> <span class="n">reqData</span><span class="o">.</span><span class="n">FetchServerInfo</span><span class="p">(</span><span class="s">"free -h | awk '/^Mem/{print $2}'"</span><span class="p">)</span>
+
+	<span class="k">var</span> <span class="n">tmplFile</span> <span class="kt">string</span>
+
+	<span class="k">if</span> <span class="n">remote</span> <span class="o">==</span> <span class="s">"true"</span> <span class="p">{</span>
+		<span class="n">tmplFile</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">readRemoteFile</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+			<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">tmplFile</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">readFile</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="o">+</span><span class="s">"/"</span><span class="o">+</span><span class="n">page</span><span class="p">,</span> <span class="s">"./"</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+			<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">tmpl</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">template</span><span class="o">.</span><span class="n">New</span><span class="p">(</span><span class="s">"page"</span><span class="p">)</span><span class="o">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">tmplFile</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">reqData</span><span class="p">)</span>
+
+	<span class="n">err</span> <span class="o">=</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">reqData</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+		<span class="n">http</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s">"Internal Server Error"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StatusInternalServerError</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">mux</span> <span class="o">:=</span> <span class="n">http</span><span class="o">.</span><span class="n">NewServeMux</span><span class="p">()</span>
+
+	<span class="n">mux</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/"</span><span class="p">,</span> <span class="n">getIndex</span><span class="p">)</span>
+	<span class="n">mux</span><span class="o">.</span><span class="n">HandleFunc</span><span class="p">(</span><span class="s">"/render"</span><span class="p">,</span> <span class="n">getTpl</span><span class="p">)</span>
+	<span class="n">mux</span><span class="o">.</span><span class="n">Handle</span><span class="p">(</span><span class="s">"/static/"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">StripPrefix</span><span class="p">(</span><span class="s">"/static/"</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">FileServer</span><span class="p">(</span><span class="n">http</span><span class="o">.</span><span class="n">Dir</span><span class="p">(</span><span class="s">"static"</span><span class="p">))))</span>
+
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Server started at port "</span> <span class="o">+</span> <span class="n">WEB_PORT</span><span class="p">)</span>
+	<span class="n">http</span><span class="o">.</span><span class="n">ListenAndServe</span><span class="p">(</span><span class="s">":"</span><span class="o">+</span><span class="n">WEB_PORT</span><span class="p">,</span> <span class="n">mux</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>As the description says, it seems the web application renders HTML templates. It supports loading templates either from a local directory (<code class="language-plaintext highlighter-rouge">./templates</code>) or remotely via a URL.
+For each request, it fetches the location information of the client’s IP address using an external API (<code class="language-plaintext highlighter-rouge">freeipapi.com</code>). The application also collects information about the server itself, such as hostname, operating system, kernel version, and memory, using shell commands. The <code class="language-plaintext highlighter-rouge">/render</code> endpoint handles the main logic. It fetches the requested page (template) and decides whether to load it from a local directory or a remote URL based on the query parameter <code class="language-plaintext highlighter-rouge">use_remote</code>.
+The application also constructs a <code class="language-plaintext highlighter-rouge">RequestData</code> object containing client IP, user agent, client IP location info, and server info, which is then passed to the template for rendering. This <code class="language-plaintext highlighter-rouge">RequestData</code> object (instantiated as <code class="language-plaintext highlighter-rouge">reqData</code>) is later also used as data parameter in the <code class="language-plaintext highlighter-rouge">.Execute()</code> of the template: <code class="language-plaintext highlighter-rouge">tmpl.Execute(w, reqData)</code>.
+Let’s see if we can provide a template that will be rendered by the server. As an example, let’s take their <code class="language-plaintext highlighter-rouge">index.tpl</code> file and change it so that something will be rendered. The only change I made is instead of the line <code class="language-plaintext highlighter-rouge">&lt;li&gt;ServerInfo.OS&lt;/li&gt;</code> I put <code class="language-plaintext highlighter-rouge">&lt;li&gt;&lt;/li&gt;</code> (you can call any of the properties of the object that is being rendered (<code class="language-plaintext highlighter-rouge">reqData</code> object in the data parameter of the <code class="language-plaintext highlighter-rouge">Execute()</code> function) by putting a <code class="language-plaintext highlighter-rouge">.</code> and then the name of the property, e.g. <code class="language-plaintext highlighter-rouge">.ServerInfo.OS</code> here).
+I copy the file into another directory, start a python http server and tunnel that using ngrok. I provide the url to my index.tpl to the web app and indeed instead of this
+<img src="img/Pasted image 20231111233915.png" alt="" />
+we got this
+<img src="img/Pasted image 20231111233849.png" alt="" />
+So it seems it is being rendered properly. Now apart from template injection, there is one other thing that stands out: Can we just tell it to “render” the flag file, à la path traversal in the <code class="language-plaintext highlighter-rouge">page</code> parameter?
+There are 2 problems with that.</p>
+<ol>
+  <li>First of all, we got an entrypoint.sh script, executed by the Dockerfile on startup of the container, that changes the flag file name so that it incorporates 10 random characters, so we don’t know what file we’re looking for exactly:
+<img src="img/Pasted image 20231111234146.png" alt="" /></li>
+  <li>Second, there is actually some code that verifies if the given path is within the allowed directory: 
+<img src="img/Pasted image 20231111234506.png" alt="" /></li>
+</ol>
+
+<p>So, onto template injection. Since we dont have to inject into a specific parameter that is being rendered in a fixed template, but we can provide the WHOLE template ourselves, this should be easy?!
+Problem is, we are not dealing with a template package like Jinja2 for Python (where <code class="language-plaintext highlighter-rouge">eval()</code>could be called within the template) or EJS for Javascript (also allowing javascript execution if untrusted unescaped data is allowed within the template): We are dealing with html/template package for Golang. This package is designed to be secure by default and does not allow the execution of arbitrary code or external commands, which limits the scope of an attacker massively. So it seems like this challenge is not about finding a crack in the web app to inject a payload into the template, but to find a weakness in Go’s html/template package itself, having complete control over the template.</p>
+
+<p>Let’s examine https://pkg.go.dev/html/template:</p>
+
+<blockquote>
+  <p>Package template (html/template) implements data-driven templates for generating HTML output safe against code injection. It provides the same interface as <a href="https://pkg.go.dev/text/template">text/template</a> and should be used instead of <a href="https://pkg.go.dev/text/template">text/template</a> whenever the output is HTML.
+The documentation here focuses on the security features of the package. For information about how to program the templates themselves, see the documentation for <a href="https://pkg.go.dev/text/template">text/template</a>.</p>
+</blockquote>
+
+<p>So far so good, much secure ok ok. A little further down, this stands out though:</p>
+
+<blockquote>
+  <p>The security model used by this package <strong>assumes that template authors are trusted, while Execute’s data parameter is not</strong>.</p>
+</blockquote>
+
+<p>Seems like the assumption that the template authors are trusted is not so good for our web application. Can we find an exploit somewhere online about Go’s html/template package that relates to this?</p>
+
+<p>A quick google search finds this one: https://www.onsecurity.io/blog/go-ssti-method-research/. This resource describes a vulnerability in Go’s html/template package, which allows a malicious user who has more flexible control over a template (more than just being able to control the <code class="language-plaintext highlighter-rouge">Execute()</code>’s data parameter’), to call methods that are an attribute of the value passed to the template:</p>
+
+<blockquote>
+  <p>Upon experimenting with the previously stated functionality (you can call any of the properties of the object that you render into the template), I was wondering if you could equally call a method through a template injection, as long as the method is an attribute of the value passed to the template. This lead me to finding out that you can in fact call methods, and <strong>even specify explicit parameters</strong>, similar to how you would in a deserialization attack.</p>
+</blockquote>
+
+<p>In our example, the methods <code class="language-plaintext highlighter-rouge">FetchServerInfo</code> and <code class="language-plaintext highlighter-rouge">GetLocationInfo</code> ARE in fact attributes/methods of the <code class="language-plaintext highlighter-rouge">reqData</code> object. This is defined by the method receiver in the function definition: <code class="language-plaintext highlighter-rouge">FetchServerInfo</code> belongs to <code class="language-plaintext highlighter-rouge">RequestData</code> type (the object type of <code class="language-plaintext highlighter-rouge">reqData</code>).</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="n">RequestData</span><span class="p">)</span> <span class="n">FetchServerInfo</span><span class="p">(</span><span class="n">command</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">exec</span><span class="o">.</span><span class="n">Command</span><span class="p">(</span><span class="s">"sh"</span><span class="p">,</span> <span class="s">"-c"</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">""</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">string</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This means we can call this function and as the resource says, even specify explicit parameters.</p>
+
+<p>The FetchServerInfo method has a parameter that is being executed as a system command, so according to the resource, this should allow us to get the flag in no time. The payload I built looks as follows:</p>
+
+<p>This also provides an easy workaround with the issue of the random name of the flag file. Using this payload in a template provided to the web app gives us the flag:</p>
+
+<p><img src="img/Pasted image 20231112002304.png" alt="" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">- HTB{qu35t_f0r_th3_f0rb1dd3n_t3mpl4t35!!}</code></p>
+<h2 id="final-solution">Final Solution</h2>
+
+<ol>
+  <li>Put</li>
+</ol>
+
+<p>into template file.</p>
+<ol>
+  <li>Serve via python http server tunneled via ngrok.</li>
+  <li>Provide url to web app</li>
+  <li>Get flag :)
+    <h2 id="lessons-learned">Lessons learned</h2>
+    <p>This challenge was a refrech for some SSTI stuff. Also I got to know some Golang and of course Go’s html/template features. Pretty nice challenge.</p>
+  </li>
+</ol>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">web</a>
+                
+                  <a href="#">SSTI</a>
+                
+                  <a href="#">Golang</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Nov 10, 2023</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Nov 10, 2023</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

